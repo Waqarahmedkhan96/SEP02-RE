@@ -26,7 +26,7 @@ The group shall adhere to the following principles to guide its work:
 
 ## 2. Purpose
 
-Our group aims to successfully complete the SEP4 project and other third-semester group assignments.
+Our group aims to successfully complete the SEP2 project.
 The objectives are as follows:
 
 - Deliver a project that meets acceptable standards, ideally achieving high grades (10-12).
@@ -53,15 +53,12 @@ The objectives are as follows:
 ## 3. Group Expectations
 
 1. **Communication**
-   - Respond to team messages within **24 hours**.
-     - Within **2 hours** if it is about an upcoming hand-in (24 hours before).
-       *(excluding 21:00-10:00, or work-related gaps in schedules)*
+   - Respond to team messages within **24 hours** = **0.25 points**
    - Attend all scheduled meetings or inform the team at least **2 hours in advance** of absence.
      - Being delayed without notification = **0.5 points**.
-     - Not attending without valid notified reason = **1.5 point**.
+     - Not attending without valid notified reason = **1 point**.
        *(a valid reason can be a doctor appointment, illness or work)*
    - GMs can join before the meeting and continue with private matters, but at the agreed time, everyone must be **actively present**.
-   - After calling sick twice a doctor receipt will be required to not miss any attendance, the lack of the receipt will result in getting **1 point**.
 
 2. **Workload**
    - Equitably distribute tasks among all members.
@@ -91,18 +88,16 @@ To ensure accountability and maintain harmony, a point-based system will track r
 **Violations:**
 - Knowingly lying -> **1 point**
 - 1 missed attendance -> **1 point**
-- Being more than 5 min late to an online meeting -> **1 point**
-- Being more than 15 min late to a meeting on campus (without counting train delays) -> **1 point**
-- Incomplete work without valid reason -> **0.5 points**
+- Being more than 15 min late to an online meeting -> **0.5 point**
+- **Incomplete work** without valid reason -> **0.5 points**
 - Failure to respond to messages -> **0.25 points**
-- Missed deadline -> **1 point**
-- Blindly agreeing -> **0.25 points**
+
 
 **Consequences:**
-- **3 points** -> The person will be expelled from the group.
+- **3 points** -> The person will be expelled from the group, It will be decided with the >= 50% of the votes.
 
 ### Tracking System
-- Points will be tracked and managed in the main **FigJam page on Figma**.
+- Points will be tracked and managed in the main **Discord Sub Channel Named: Strikes**.
 
 ## Signatures
 
