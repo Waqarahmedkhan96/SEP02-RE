@@ -16,9 +16,7 @@
 - Christos Artemisios
 - Soma Bence Nagy
 - Rebeca Proskovcova
-- Matteo De Filippis
-- Matteo Saccucci
-- Piotr Gała
+- Fadumo Ahmed Farah
 
 ## 1. Core Values and Priorities
 
@@ -114,7 +112,9 @@ To ensure accountability and maintain harmony, a point-based system will track r
 ## Signatures
 
 | Name                       | Signature           | Date       |
-|----------------------------|---------------------|------------|
+|----------------------------|---------------------
+                            
+  Fadumo Ahmed Farah           Fadumo Ahmed Farah    27.06.2026
 | Guillermo Sanchez Martinez | Guillermo Sánchez   | 18.02.2026 |
 | Hamsa Sheikhdon            | Hamsa Sheikhdon     | 18.02.2026 |
 | Felipe Figueiredo          | Felipe Figueiredo   | 18.02.2026 |
@@ -126,3 +126,6 @@ To ensure accountability and maintain harmony, a point-based system will track r
 | Eliza Bianca Manciu        | Eliza Bianca        | 20.02.2026 |
 | Soma Bence Nagy            | Soma Bence Nagy     | 20.02.2026 |
 | Waqar Ahmed Khan           | Waqar Ahmed Khan    | 18.02.2026 |
+  
+
+
