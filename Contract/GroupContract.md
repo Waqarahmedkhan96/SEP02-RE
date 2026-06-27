@@ -103,7 +103,7 @@ To ensure accountability and maintain harmony, a point-based system will track r
 
 | Name                | Signature          | Date       |
 |---------------------|--------------------|------------|
-| Rebeca Proskovcova  | Rebeca Proskovcova | 18.02.2026 |
+| Rebeca Proskovcova  | Rebeca Proskovcova | 27.06.2026 |
 | Soma Bence Nagy     | Soma Bence Nagy    | 27.06.2026 |
 | Neegam Singh Kunwar |                    |            |
 | Fadumo Ahmed Farah  | Fadumo Ahmed Farah | 27.06.2026 |
