@@ -60,12 +60,6 @@ class Vehicle {
   - currentState
 }
 
-class Penalty {
-  - type
-  - amount
-  - reason
-}
-
 interface VehicleState
 
 class AvailableState
@@ -105,7 +99,6 @@ Customer "1" -- "1" DrivingLicense : has
 
 Booking "1" -- "1" Customer : contains
 Booking "1" -- "1" Vehicle : contains
-Booking "1" -- "0..1" Penalty : has
 
 Vehicle "1" -- "1" VehicleState : has
 
@@ -127,11 +120,6 @@ note bottom of VehicleState
   Vehicle availability is handled by states.
   If a vehicle is not available or rented,
   its condition can explain the problem.
-end note
-
-note right of Penalty
-  A penalty is added when a vehicle
-  is returned after the end date.
 end note
 
 @enduml
