@@ -1,0 +1,126 @@
+@startuml EasyRide_Domain_Model
+
+title EasyRide Domain Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFF8C6
+  BorderColor #111111
+  ArrowColor #111111
+}
+
+class EasyRide {
+  - customers
+  - vehicles
+  - bookings
+}
+
+class Employee {
+  - name
+  - role
+}
+
+class Customer {
+  - name
+  - phoneNo
+  - email
+  - cpr
+  - passportNo
+  - drivingLicenseNo
+}
+
+class DrivingLicense {
+  - licenseNo
+  - category
+}
+
+class Booking {
+  - startDate
+  - endDate
+  - actualReturnDate
+  - customer
+  - vehicle
+  - status
+}
+
+class Vehicle {
+  - model
+  - color
+  - engine
+  - plateNo
+  - priceHour
+  - deposit
+  - condition
+  - currentState
+}
+
+class MaintenanceRecord {
+  - description
+  - startDate
+  - endDate
+}
+
+class Penalty {
+  - type
+  - amount
+  - reason
+}
+
+interface VehicleState
+
+class AvailableState
+class RentedState
+class MaintenanceState
+class RemovedState
+
+class Car
+class Van
+class Truck
+class SportsCar
+
+EasyRide "1" -- "0..*" Customer : has
+EasyRide "1" -- "1..*" Vehicle : has
+EasyRide "1" -- "0..*" Booking : has
+
+Employee "1" -- "0..*" Customer : manages
+Employee "1" -- "0..*" Vehicle : manages
+Employee "1" -- "0..*" Booking : creates
+
+Customer "1" -- "0..*" Booking : makes
+Customer "1" -- "1" DrivingLicense : has
+
+Booking "1" -- "1" Customer : contains
+Booking "1" -- "1" Vehicle : contains
+Booking "1" -- "0..1" Penalty : has
+
+Vehicle "1" -- "0..*" MaintenanceRecord : has
+Vehicle "1" -- "1" VehicleState : has
+
+VehicleState <|.. AvailableState
+VehicleState <|.. RentedState
+VehicleState <|.. MaintenanceState
+VehicleState <|.. RemovedState
+
+Vehicle <|-- Car
+Vehicle <|-- Van
+Vehicle <|-- Truck
+Vehicle <|-- SportsCar
+
+note right of Booking
+  A vehicle cannot have overlapping
+  active bookings for the same period.
+end note
+
+note bottom of VehicleState
+  Vehicle availability is handled by states.
+  This can later be shown with a state machine.
+end note
+
+note right of Penalty
+  A penalty is added when a vehicle
+  is returned after the end date.
+end note
+
+@enduml
