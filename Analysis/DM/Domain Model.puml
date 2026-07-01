@@ -32,12 +32,11 @@ class Customer {
 
 class DrivingLicense {
   - licenseNo
+  - isCategoryA
+  - isCategoryB
+  - isCategoryC
+  - isCategoryD
 }
-
-class CategoryA
-class CategoryB
-class CategoryC
-class CategoryD
 
 class Booking {
   - startDate
@@ -59,12 +58,6 @@ class Vehicle {
   - condition
   - noOfSeats
   - currentState
-}
-
-class MaintenanceRecord {
-  - description
-  - startDate
-  - endDate
 }
 
 class Penalty {
@@ -114,13 +107,7 @@ Booking "1" -- "1" Customer : contains
 Booking "1" -- "1" Vehicle : contains
 Booking "1" -- "0..1" Penalty : has
 
-Vehicle "1" -- "0..*" MaintenanceRecord : has
 Vehicle "1" -- "1" VehicleState : has
-
-DrivingLicense <|-- CategoryA
-DrivingLicense <|-- CategoryB
-DrivingLicense <|-- CategoryC
-DrivingLicense <|-- CategoryD
 
 VehicleState <|.. AvailableState
 VehicleState <|.. RentedState
