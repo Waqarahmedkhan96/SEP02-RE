@@ -19,7 +19,7 @@ class EasyRide {
 
 class Employee {
   - name
-  - role
+  - password
 }
 
 class Customer {
@@ -28,10 +28,10 @@ class Customer {
   - email
   - cpr
   - passportNo
+  - licenseNo
 }
 
 class DrivingLicense {
-  - licenseNo
   - isCategoryA
   - isCategoryB
   - isCategoryC
