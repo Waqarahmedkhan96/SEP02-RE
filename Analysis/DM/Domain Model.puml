@@ -28,20 +28,21 @@ class Customer {
   - email
   - cpr
   - passportNo
-  - drivingLicenseNo
 }
 
 class DrivingLicense {
   - licenseNo
-  - category
 }
+
+class CategoryA
+class CategoryB
+class CategoryC
+class CategoryD
 
 class Booking {
   - startDate
   - endDate
   - actualReturnDate
-  - customer
-  - vehicle
   - status
 }
 
@@ -52,7 +53,11 @@ class Vehicle {
   - plateNo
   - priceHour
   - deposit
+  - noOfTire
+  - lateFee
+  - requiredLicense
   - condition
+  - noOfSeats
   - currentState
 }
 
@@ -72,13 +77,27 @@ interface VehicleState
 
 class AvailableState
 class RentedState
-class MaintenanceState
-class RemovedState
 
 class Car
-class Van
-class Truck
-class SportsCar
+class MotorCycle {
+  - hasSidecar
+  - type
+}
+
+class Van {
+  - cargoVolume
+  - hasSlidingDoor
+}
+
+class Truck {
+  - loadCapacity
+  - trailerAttached
+}
+
+class SportsCar {
+  - topSpeed
+  - hasTurbo
+}
 
 EasyRide "1" -- "0..*" Customer : has
 EasyRide "1" -- "1..*" Vehicle : has
@@ -98,12 +117,16 @@ Booking "1" -- "0..1" Penalty : has
 Vehicle "1" -- "0..*" MaintenanceRecord : has
 Vehicle "1" -- "1" VehicleState : has
 
+DrivingLicense <|-- CategoryA
+DrivingLicense <|-- CategoryB
+DrivingLicense <|-- CategoryC
+DrivingLicense <|-- CategoryD
+
 VehicleState <|.. AvailableState
 VehicleState <|.. RentedState
-VehicleState <|.. MaintenanceState
-VehicleState <|.. RemovedState
 
 Vehicle <|-- Car
+Vehicle <|-- MotorCycle
 Vehicle <|-- Van
 Vehicle <|-- Truck
 Vehicle <|-- SportsCar
@@ -115,7 +138,8 @@ end note
 
 note bottom of VehicleState
   Vehicle availability is handled by states.
-  This can later be shown with a state machine.
+  If a vehicle is not available or rented,
+  its condition can explain the problem.
 end note
 
 note right of Penalty
