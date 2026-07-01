@@ -42,7 +42,7 @@ class Booking {
   - startDate
   - endDate
   - actualReturnDate
-  - status
+  - bookingStatus
 }
 
 class Vehicle {
