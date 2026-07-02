@@ -1,0 +1,46 @@
+@startuml
+title SSD - Create Booking
+
+actor Employee
+participant "EasyRide System" as System
+
+Employee -> System: selectCreateBooking()
+System --> Employee: displayCreateBookingPage()
+
+Employee -> System: selectCustomer(customerId)
+System --> Employee: displayCustomerDetails(customerId)
+
+Employee -> System: enterRentalPeriod(startDateTime, endDateTime)
+System --> Employee: displayAvailableVehicles(startDateTime, endDateTime)
+
+alt ALT1: No vehicles available
+    System --> Employee: informNoVehiclesAvailable()
+else Vehicles available
+    opt ALT2: Employee filters vehicles
+        Employee -> System: filterVehicles(color, price, vehicleType, status)
+        System --> Employee: displayFilteredAvailableVehicles()
+    end
+
+    Employee -> System: selectVehicle(vehicleId)
+    System --> Employee: displayVehicleDetails(vehicleId)
+
+    System -> System: verifyVehicleAvailability(vehicleId, startDateTime, endDateTime)
+
+    alt ALT3: Vehicle no longer available
+        System --> Employee: informVehicleNoLongerAvailable()
+        System --> Employee: displayAvailableVehicles(startDateTime, endDateTime)
+    else Vehicle still available
+        alt ALT4: Employee cancels
+            Employee -> System: cancelBookingProcess()
+            System --> Employee: bookingProcessCancelled()
+        else Employee confirms booking
+            Employee -> System: confirmBooking(customerId, vehicleId, startDateTime, endDateTime)
+            System -> System: createAndStoreBooking()
+            System -> System: reserveVehicleForPeriod()
+            System -> System: markBookingAsActive()
+            System --> Employee: bookingCreated(bookingId)
+        end
+    end
+end
+
+@enduml
