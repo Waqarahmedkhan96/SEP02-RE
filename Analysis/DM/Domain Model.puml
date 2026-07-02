@@ -2,6 +2,8 @@
 
 title EasyRide Domain Model
 
+left to right direction
+
 skinparam classAttributeIconSize 0
 skinparam shadowing false
 skinparam linetype ortho
@@ -11,15 +13,15 @@ skinparam class {
   ArrowColor #111111
 }
 
+class Employee {
+  - name
+  - password
+}
+
 class EasyRide {
   - customers
   - vehicles
   - bookings
-}
-
-class Employee {
-  - name
-  - password
 }
 
 class Customer {
@@ -90,15 +92,12 @@ EasyRide "1" -- "0..*" Customer : has
 EasyRide "1" -- "1..*" Vehicle : has
 EasyRide "1" -- "0..*" Booking : has
 
-Employee "1" -- "0..*" Customer : manages
-Employee "1" -- "0..*" Vehicle : manages
-Employee "1" -- "0..*" Booking : creates
+Employee "1" -- "1" EasyRide : uses
 
 Customer "1" -- "0..*" Booking : makes
 Customer "1" -- "1" DrivingLicense : has
 
-Booking "1" -- "1" Customer : contains
-Booking "1" -- "1" Vehicle : contains
+Vehicle "1" -- "0..*" Booking : is booked in
 
 Vehicle "1" -- "1" VehicleState : has
 
@@ -111,15 +110,15 @@ Vehicle <|-- Van
 Vehicle <|-- Truck
 Vehicle <|-- SportsCar
 
-note right of Booking
-  A vehicle cannot have overlapping
-  active bookings for the same period.
-end note
-
-note bottom of VehicleState
-  Vehicle availability is handled by states.
-  If a vehicle is not available or rented,
-  its condition can explain the problem.
-end note
+Employee -[hidden]right- EasyRide
+EasyRide -[hidden]right- Customer
+Customer -[hidden]right- Booking
+Booking -[hidden]right- Vehicle
+Vehicle -[hidden]down- VehicleState
+Vehicle -[hidden]down- Car
+Car -[hidden]right- MotorCycle
+MotorCycle -[hidden]right- Van
+Van -[hidden]right- Truck
+Truck -[hidden]right- SportsCar
 
 @enduml
