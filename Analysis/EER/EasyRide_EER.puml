@@ -1,0 +1,120 @@
+@startuml EasyRide_EER
+
+title EasyRide EER Diagram
+
+top to bottom direction
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFF8C6
+  BorderColor #111111
+  ArrowColor #111111
+}
+
+entity Employee {
+  * employeeId : int <<PK>>
+  --
+  name : varchar
+  password : varchar
+}
+
+entity Customer {
+  * customerId : int <<PK>>
+  --
+  name : varchar
+  phoneNo : varchar
+  email : varchar
+  cpr : varchar
+  passportNo : varchar
+  licenseNo : varchar <<FK>>
+}
+
+entity DrivingLicense {
+  * licenseNo : varchar <<PK>>
+  --
+  isCategoryA : boolean
+  isCategoryB : boolean
+  isCategoryC : boolean
+  isCategoryD : boolean
+}
+
+entity Booking {
+  * bookingId : int <<PK>>
+  --
+  startDate : datetime
+  endDate : datetime
+  actualReturnDate : datetime
+  bookingStatus : varchar
+  customerId : int <<FK>>
+  vehicleId : int <<FK>>
+  employeeId : int <<FK>>
+}
+
+entity Vehicle {
+  * vehicleId : int <<PK>>
+  --
+  model : varchar
+  color : varchar
+  engine : varchar
+  plateNo : varchar
+  priceHour : decimal
+  deposit : decimal
+  noOfTire : int
+  lateFee : decimal
+  requiredLicense : varchar
+  condition : varchar
+  noOfSeats : int
+  currentState : varchar
+}
+
+entity Car {
+  * vehicleId : int <<PK, FK>>
+}
+
+entity MotorCycle {
+  * vehicleId : int <<PK, FK>>
+  --
+  hasSidecar : boolean
+  type : varchar
+}
+
+entity Van {
+  * vehicleId : int <<PK, FK>>
+  --
+  cargoVolume : decimal
+  hasSlidingDoor : boolean
+}
+
+entity Truck {
+  * vehicleId : int <<PK, FK>>
+  --
+  loadCapacity : decimal
+  trailerAttached : boolean
+}
+
+entity SportsCar {
+  * vehicleId : int <<PK, FK>>
+  --
+  topSpeed : int
+  hasTurbo : boolean
+}
+
+DrivingLicense "1" -- "0..1" Customer : belongs to
+Customer "1" -- "0..*" Booking : makes
+Vehicle "1" -- "0..*" Booking : is booked in
+Employee "1" -- "0..*" Booking : creates
+
+Vehicle "1" -- "0..1" Car : subtype
+Vehicle "1" -- "0..1" MotorCycle : subtype
+Vehicle "1" -- "0..1" Van : subtype
+Vehicle "1" -- "0..1" Truck : subtype
+Vehicle "1" -- "0..1" SportsCar : subtype
+
+note right of Booking
+  No two active bookings may overlap
+  for the same vehicle.
+end note
+
+@enduml
