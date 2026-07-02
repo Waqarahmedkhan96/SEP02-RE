@@ -1,6 +1,6 @@
 @startuml EasyRide_Domain_Model
 
-title EasyRide Domain Model
+title EasyRide Domain model
 
 skinparam classAttributeIconSize 0
 skinparam shadowing false
