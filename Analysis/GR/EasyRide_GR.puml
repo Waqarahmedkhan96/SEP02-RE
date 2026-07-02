@@ -1,0 +1,117 @@
+@startuml EasyRide_GR
+
+title EasyRide GR Diagram
+
+top to bottom direction
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 80
+skinparam class {
+  BackgroundColor #FFF8C6
+  BorderColor #111111
+  ArrowColor #111111
+}
+
+class Employee {
+  * employeeId : int
+  --
+  name : varchar
+  password : varchar
+}
+
+class DrivingLicense {
+  * licenseNo : varchar
+  --
+  isCategoryA : boolean
+  isCategoryB : boolean
+  isCategoryC : boolean
+  isCategoryD : boolean
+}
+
+class Customer {
+  * customerId : int
+  --
+  name : varchar
+  phoneNo : varchar
+  email : varchar
+  cpr : varchar
+  passportNo : varchar
+  licenseNo : varchar <<FK>>
+}
+
+class Vehicle {
+  * vehicleId : int
+  --
+  model : varchar
+  color : varchar
+  engine : varchar
+  plateNo : varchar
+  priceHour : decimal
+  deposit : decimal
+  noOfTire : int
+  lateFee : decimal
+  requiredLicense : varchar
+  condition : varchar
+  noOfSeats : int
+  currentState : varchar
+}
+
+class Booking {
+  * bookingId : int
+  --
+  startDate : datetime
+  endDate : datetime
+  actualReturnDate : datetime
+  bookingStatus : varchar
+  customerId : int <<FK>>
+  vehicleId : int <<FK>>
+  employeeId : int <<FK>>
+}
+
+class Car {
+  * vehicleId : int <<PK, FK>>
+}
+
+class MotorCycle {
+  * vehicleId : int <<PK, FK>>
+  --
+  hasSidecar : boolean
+  type : varchar
+}
+
+class Van {
+  * vehicleId : int <<PK, FK>>
+  --
+  cargoVolume : decimal
+  hasSlidingDoor : boolean
+}
+
+class Truck {
+  * vehicleId : int <<PK, FK>>
+  --
+  loadCapacity : decimal
+  trailerAttached : boolean
+}
+
+class SportsCar {
+  * vehicleId : int <<PK, FK>>
+  --
+  topSpeed : int
+  hasTurbo : boolean
+}
+
+DrivingLicense "1" <-- "0..1" Customer
+Customer "1" <-- "0..*" Booking
+Vehicle "1" <-- "0..*" Booking
+Employee "1" <-- "0..*" Booking
+
+Vehicle "1" <-- "0..1" Car
+Vehicle "1" <-- "0..1" MotorCycle
+Vehicle "1" <-- "0..1" Van
+Vehicle "1" <-- "0..1" Truck
+Vehicle "1" <-- "0..1" SportsCar
+
+@enduml
