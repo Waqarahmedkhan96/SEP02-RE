@@ -1,0 +1,125 @@
+@startuml EasyRide_Domain_Model
+
+title EasyRide Domain Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFF8C6
+  BorderColor #111111
+  ArrowColor #111111
+}
+
+class EasyRide {
+  - customers
+  - vehicles
+  - bookings
+}
+
+class Employee {
+  - name
+  - password
+}
+
+class Customer {
+  - name
+  - phoneNo
+  - email
+  - cpr
+  - passportNo
+  - licenseNo
+}
+
+class DrivingLicense {
+  - isCategoryA
+  - isCategoryB
+  - isCategoryC
+  - isCategoryD
+}
+
+class Booking {
+  - startDate
+  - endDate
+  - actualReturnDate
+  - bookingStatus
+}
+
+class Vehicle {
+  - model
+  - color
+  - engine
+  - plateNo
+  - priceHour
+  - deposit
+  - noOfTire
+  - lateFee
+  - requiredLicense
+  - condition
+  - noOfSeats
+  - currentState
+}
+
+interface VehicleState
+
+class AvailableState
+class RentedState
+
+class Car
+class MotorCycle {
+  - hasSidecar
+  - type
+}
+
+class Van {
+  - cargoVolume
+  - hasSlidingDoor
+}
+
+class Truck {
+  - loadCapacity
+  - trailerAttached
+}
+
+class SportsCar {
+  - topSpeed
+  - hasTurbo
+}
+
+EasyRide "1" -- "0..*" Customer : has
+EasyRide "1" -- "1..*" Vehicle : has
+EasyRide "1" -- "0..*" Booking : has
+
+Employee "1" -- "0..*" Customer : manages
+Employee "1" -- "0..*" Vehicle : manages
+Employee "1" -- "0..*" Booking : creates
+
+Customer "1" -- "0..*" Booking : makes
+Customer "1" -- "1" DrivingLicense : has
+
+Booking "1" -- "1" Customer : contains
+Booking "1" -- "1" Vehicle : contains
+
+Vehicle "1" -- "1" VehicleState : has
+
+VehicleState <|.. AvailableState
+VehicleState <|.. RentedState
+
+Vehicle <|-- Car
+Vehicle <|-- MotorCycle
+Vehicle <|-- Van
+Vehicle <|-- Truck
+Vehicle <|-- SportsCar
+
+note right of Booking
+  A vehicle cannot have overlapping
+  active bookings for the same period.
+end note
+
+note bottom of VehicleState
+  Vehicle availability is handled by states.
+  If a vehicle is not available or rented,
+  its condition can explain the problem.
+end note
+
+@enduml
