@@ -18,7 +18,7 @@ This relational schema is aligned with the GR diagram and the EER diagram.
 - Foreign key: `licenseNo` references `DrivingLicense(licenseNo)`
 - `licenseNo` should be unique because one customer has one driving license.
 
-**Vehicle**(`vehicleId`, model, color, engine, plateNo, priceHour, deposit, noOfTire, lateFee, requiredLicense, condition, noOfSeats, currentState)
+**Vehicle**(`vehicleId`, main.java.model, color, engine, plateNo, priceHour, deposit, noOfTire, lateFee, requiredLicense, condition, noOfSeats, currentState)
 
 - Primary key: `vehicleId`
 - `plateNo` should be unique.
@@ -58,6 +58,6 @@ This relational schema is aligned with the GR diagram and the EER diagram.
 
 ## Notes
 
-- `EasyRide` is not included as a table because it represents the system/company container in the domain model.
+- `EasyRide` is not included as a table because it represents the system/company container in the domain main.java.model.
 - `currentState` stores the vehicle state, for example available or rented.
 - `lateFee` is stored on `Vehicle` because different vehicle types may have different late fees.

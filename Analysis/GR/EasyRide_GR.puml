@@ -45,7 +45,7 @@ class Customer {
 class Vehicle {
   * vehicleId : int
   --
-  model : varchar
+  main.java.model : varchar
   color : varchar
   engine : varchar
   plateNo : varchar

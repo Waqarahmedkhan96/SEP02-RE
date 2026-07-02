@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="view.CustomerViewController"
+      style="-fx-padding: 20;">
+    <TextField fx:id="nameField" promptText="Name"/>
+    <TextField fx:id="phoneField" promptText="Phone"/>
+    <TextField fx:id="emailField" promptText="Email"/>
+    <TextField fx:id="cprField" promptText="CPR"/>
+    <TextField fx:id="passportField" promptText="Passport No"/>
+    <TextField fx:id="licenseField" promptText="License No"/>
+    <HBox spacing="10">
+        <CheckBox fx:id="catA" text="A"/>
+        <CheckBox fx:id="catB" text="B"/>
+        <CheckBox fx:id="catC" text="C"/>
+        <CheckBox fx:id="catD" text="D"/>
+    </HBox>
+    <Button text="Create Customer" onAction="#handleSubmit"/>
+    <Label fx:id="statusLabel"/>
+</VBox>

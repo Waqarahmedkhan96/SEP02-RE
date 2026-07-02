@@ -37,7 +37,7 @@ Includes:
 - Cancel booking
 - Complete/return booking
 - Prevent overlapping bookings
-- Archive/view completed bookings
+- Archive/main.java.view completed bookings
 end note
 
 note right of UC3

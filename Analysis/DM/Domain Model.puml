@@ -1,6 +1,6 @@
 @startuml EasyRide_Domain_Model
 
-title EasyRide Domain model
+title EasyRide Domain main.java.model
 
 skinparam classAttributeIconSize 0
 skinparam shadowing false
@@ -46,7 +46,7 @@ class Booking {
 }
 
 class Vehicle {
-  - model
+  - main.java.model
   - color
   - engine
   - plateNo

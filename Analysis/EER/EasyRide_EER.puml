@@ -55,7 +55,7 @@ entity Booking {
 entity Vehicle {
   * vehicleId : int <<PK>>
   --
-  model : varchar
+  main.java.model : varchar
   color : varchar
   engine : varchar
   plateNo : varchar
