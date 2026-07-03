@@ -1,9 +1,13 @@
 package server;
 
+import dao.BookingDAO;
 import dao.CustomerDAO;
 import dao.DAOFactory;
+import model.Booking;
 import model.Customer;
 import model.DrivingLicense;
+import shared.CreateBookingRequest;
+import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
 
@@ -31,6 +35,36 @@ public class ModelManager {
         } catch (Exception e) {
             e.printStackTrace();
             return new CreateCustomerResponse(false, "Database error: " + e.getMessage(), -1);
+        }
+    }
+
+    public CreateBookingResponse createBooking(CreateBookingRequest req) {
+        if (req.getCustomerId() <= 0) {
+            return new CreateBookingResponse(false, "Customer is required", -1);
+        }
+        if (req.getVehicleId() <= 0) {
+            return new CreateBookingResponse(false, "Vehicle is required", -1);
+        }
+        if (req.getEmployeeId() <= 0) {
+            return new CreateBookingResponse(false, "Employee is required", -1);
+        }
+        if (req.getStartDate() == null || req.getEndDate() == null) {
+            return new CreateBookingResponse(false, "Rental period is required", -1);
+        }
+        if (!req.getStartDate().isBefore(req.getEndDate())) {
+            return new CreateBookingResponse(false, "Start date must be before end date", -1);
+        }
+
+        Booking booking = new Booking(req.getStartDate(), req.getEndDate(), "ACTIVE",
+                req.getCustomerId(), req.getVehicleId(), req.getEmployeeId());
+
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            int newId = dao.create(booking);
+            return new CreateBookingResponse(true, "Booking created", newId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CreateBookingResponse(false, "Database error: " + e.getMessage(), -1);
         }
     }
 }
