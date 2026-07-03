@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+
+actor Employee
+
+rectangle "EasyRide Car Rental System" {
+
+    usecase "Register Customer" as UC1
+    usecase "Update Customer\nInformation" as UC2
+    usecase "View Customer\nBooking Records" as UC3
+
+    usecase "Create Booking" as UC4
+    usecase "Update Booking" as UC5
+    usecase "Cancel Booking" as UC6
+    usecase "Complete / Return\nBooking" as UC7
+    usecase "View Booking\nHistory / Archive" as UC8
+
+    usecase "View Vehicle\nAvailability" as UC9
+    usecase "Track Overdue\nReturns" as UC10
+}
+
+Employee --> UC1
+Employee --> UC2
+Employee --> UC3
+
+Employee --> UC4
+Employee --> UC5
+Employee --> UC6
+Employee --> UC7
+Employee --> UC8
+
+Employee --> UC9
+Employee --> UC10
+
+@enduml
