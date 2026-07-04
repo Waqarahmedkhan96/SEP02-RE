@@ -10,6 +10,10 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.GetCustomerBookingsRequest;
+import shared.GetCustomerBookingsResponse;
+
+import java.util.Collections;
 
 public class ModelManager {
 
@@ -65,6 +69,20 @@ public class ModelManager {
         } catch (Exception e) {
             e.printStackTrace();
             return new CreateBookingResponse(false, "Database error: " + e.getMessage(), -1);
+        }
+    }
+
+    public GetCustomerBookingsResponse getCustomerBookings(GetCustomerBookingsRequest req) {
+        if (req.getCustomerId() <= 0) {
+            return new GetCustomerBookingsResponse(false, "Customer is required", Collections.emptyList());
+        }
+
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            return new GetCustomerBookingsResponse(true, "Bookings loaded", dao.findByCustomerId(req.getCustomerId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetCustomerBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
         }
     }
 }

@@ -4,6 +4,8 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.GetCustomerBookingsRequest;
+import shared.GetCustomerBookingsResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -30,6 +32,9 @@ public class ClientHandler implements Runnable {
                 out.writeObject(response);
             } else if (requestObj instanceof CreateBookingRequest req) {
                 CreateBookingResponse response = modelManager.createBooking(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof GetCustomerBookingsRequest req) {
+                GetCustomerBookingsResponse response = modelManager.getCustomerBookings(req);
                 out.writeObject(response);
             }
 

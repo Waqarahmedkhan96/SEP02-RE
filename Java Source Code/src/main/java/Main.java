@@ -6,9 +6,9 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/CustomerView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
         stage.setScene(new Scene(loader.load()));
-        stage.setTitle("EasyRide — Create Customer");
+        stage.setTitle("EasyRide");
         stage.show();
     }
 

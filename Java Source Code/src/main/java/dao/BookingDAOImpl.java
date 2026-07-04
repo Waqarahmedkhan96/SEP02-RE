@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookingDAOImpl implements BookingDAO {
 
@@ -62,6 +64,28 @@ public class BookingDAOImpl implements BookingDAO {
         }
     }
 
+    @Override
+    public List<Booking> findByCustomerId(int customerId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking " +
+                "WHERE customer_id = ? " +
+                "ORDER BY start_date DESC, booking_id DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ensureExists(conn, "customer", "customer_id", customerId, "Customer does not exist");
+            stmt.setInt(1, customerId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
     private void ensureExists(Connection conn, String tableName, String idColumn, int id, String message) throws SQLException {
         String sql = "SELECT 1 FROM " + tableName + " WHERE " + idColumn + " = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -89,7 +113,7 @@ public class BookingDAOImpl implements BookingDAO {
 
         String overlapSql = "SELECT 1 FROM booking " +
                 "WHERE vehicle_id = ? " +
-                "AND booking_status = 'ACTIVE' " +
+                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
                 "AND start_date < ? " +
                 "AND end_date > ? " +
                 "LIMIT 1";
@@ -100,5 +124,23 @@ public class BookingDAOImpl implements BookingDAO {
             ResultSet rs = stmt.executeQuery();
             return !rs.next();
         }
+    }
+
+    private Booking mapBooking(ResultSet rs) throws SQLException {
+        Booking booking = new Booking();
+        booking.setBookingId(rs.getInt("booking_id"));
+        booking.setStartDate(rs.getTimestamp("start_date").toLocalDateTime());
+        booking.setEndDate(rs.getTimestamp("end_date").toLocalDateTime());
+
+        Timestamp actualReturnDate = rs.getTimestamp("actual_return_date");
+        if (actualReturnDate != null) {
+            booking.setActualReturnDate(actualReturnDate.toLocalDateTime());
+        }
+
+        booking.setBookingStatus(rs.getString("booking_status"));
+        booking.setCustomerId(rs.getInt("customer_id"));
+        booking.setVehicleId(rs.getInt("vehicle_id"));
+        booking.setEmployeeId(rs.getInt("employee_id"));
+        return booking;
     }
 }
