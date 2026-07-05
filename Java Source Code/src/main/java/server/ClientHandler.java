@@ -1,11 +1,15 @@
 package server;
 
+import shared.CompleteBookingRequest;
+import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.HandleOverdueReturnsRequest;
+import shared.HandleOverdueReturnsResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -35,6 +39,12 @@ public class ClientHandler implements Runnable {
                 out.writeObject(response);
             } else if (requestObj instanceof GetCustomerBookingsRequest req) {
                 GetCustomerBookingsResponse response = modelManager.getCustomerBookings(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof CompleteBookingRequest req) {
+                CompleteBookingResponse response = modelManager.completeBooking(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof HandleOverdueReturnsRequest req) {
+                HandleOverdueReturnsResponse response = modelManager.handleOverdueReturns(req);
                 out.writeObject(response);
             }
 

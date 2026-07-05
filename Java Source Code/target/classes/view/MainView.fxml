@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<TabPane xmlns:fx="http://javafx.com/fxml">
+    <Tab text="Customers" closable="false">
+        <fx:include source="CustomerView.fxml"/>
+    </Tab>
+    <Tab text="Bookings" closable="false">
+        <fx:include source="BookingView.fxml"/>
+    </Tab>
+</TabPane>

@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +84,97 @@ public class BookingDAOImpl implements BookingDAO {
                 bookings.add(mapBooking(rs));
             }
             return bookings;
+        }
+    }
+
+    @Override
+    public Booking findById(int bookingId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE booking_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? mapBooking(rs) : null;
+        }
+    }
+
+    @Override
+    public List<Booking> findOverdueCandidates() throws SQLException {
+        // ACTIVE bookings whose endDate has already passed but haven't been marked OVERDUE yet
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking " +
+                "WHERE UPPER(booking_status) = 'ACTIVE' AND end_date < ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ResultSet rs = stmt.executeQuery();
+
+            List<Booking> overdue = new ArrayList<>();
+            while (rs.next()) {
+                overdue.add(mapBooking(rs));
+            }
+            return overdue;
+        }
+    }
+
+    @Override
+    public void markOverdue(int bookingId) throws SQLException {
+        String sql = "UPDATE booking SET booking_status = 'OVERDUE' WHERE booking_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void completeBooking(int bookingId, int vehicleId, LocalDateTime actualReturnDate, String newStatus) throws SQLException {
+        String updateBookingSql = "UPDATE booking SET booking_status = ?, actual_return_date = ? WHERE booking_id = ?";
+        String updateVehicleSql = "UPDATE vehicle SET current_state = 'available' WHERE vehicle_id = ?";
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingSql)) {
+                stmt.setString(1, newStatus);
+                stmt.setTimestamp(2, Timestamp.valueOf(actualReturnDate));
+                stmt.setInt(3, bookingId);
+                stmt.executeUpdate();
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateVehicleSql)) {
+                stmt.setInt(1, vehicleId);
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        }
+    }
+
+    @Override
+    public double getVehicleLateFeeRate(int vehicleId) throws SQLException {
+        String sql = "SELECT late_fee FROM vehicle WHERE vehicle_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) throw new SQLException("Vehicle does not exist");
+            return rs.getDouble("late_fee");
         }
     }
 

@@ -1,11 +1,15 @@
 package client;
 
+import shared.CompleteBookingRequest;
+import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.HandleOverdueReturnsRequest;
+import shared.HandleOverdueReturnsResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -41,6 +45,26 @@ public class Client {
 
             out.writeObject(request);
             return (GetCustomerBookingsResponse) in.readObject();
+        }
+    }
+
+    public CompleteBookingResponse completeBooking(CompleteBookingRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (CompleteBookingResponse) in.readObject();
+        }
+    }
+
+    public HandleOverdueReturnsResponse handleOverdueReturns(HandleOverdueReturnsRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (HandleOverdueReturnsResponse) in.readObject();
         }
     }
 }

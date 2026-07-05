@@ -6,14 +6,24 @@ import dao.DAOFactory;
 import model.Booking;
 import model.Customer;
 import model.DrivingLicense;
+import model.state.BookingState;
+import model.state.BookingStateFactory;
+import shared.CompleteBookingRequest;
+import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.HandleOverdueReturnsRequest;
+import shared.HandleOverdueReturnsResponse;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class ModelManager {
 
@@ -84,5 +94,81 @@ public class ModelManager {
             e.printStackTrace();
             return new GetCustomerBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
         }
+    }
+
+    public CompleteBookingResponse completeBooking(CompleteBookingRequest req) {
+        if (req.getBookingId() <= 0) {
+            return new CompleteBookingResponse(false, "Booking is required", 0);
+        }
+
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+
+            Booking booking = dao.findById(req.getBookingId());
+            if (booking == null) {
+                return new CompleteBookingResponse(false, "Booking not found", 0);
+            }
+
+            BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
+            BookingState nextState;
+            try {
+                nextState = currentState.complete(booking); // throws if transition is invalid
+            } catch (IllegalStateException e) {
+                return new CompleteBookingResponse(false, e.getMessage(), 0);
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            double lateFee = calculateLateFee(dao, booking, now);
+
+            dao.completeBooking(booking.getBookingId(), booking.getVehicleId(), now, nextState.getStatusName());
+
+            String message = lateFee > 0
+                    ? "Booking completed with a late fee of " + lateFee
+                    : "Booking completed on time";
+
+            return new CompleteBookingResponse(true, message, lateFee);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CompleteBookingResponse(false, "Database error: " + e.getMessage(), 0);
+        }
+    }
+
+    public HandleOverdueReturnsResponse handleOverdueReturns(HandleOverdueReturnsRequest req) {
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            List<Booking> candidates = dao.findOverdueCandidates();
+            List<Integer> markedOverdue = new ArrayList<>();
+
+            for (Booking booking : candidates) {
+                BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
+                try {
+                    currentState.markOverdue(booking); // validates transition
+                    dao.markOverdue(booking.getBookingId());
+                    markedOverdue.add(booking.getBookingId());
+                } catch (IllegalStateException ignored) {
+                    // shouldn't happen since findOverdueCandidates only returns ACTIVE bookings, but stay defensive
+                }
+            }
+
+            return new HandleOverdueReturnsResponse(true,
+                    "Marked " + markedOverdue.size() + " booking(s) as overdue", markedOverdue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new HandleOverdueReturnsResponse(false, "Database error: " + e.getMessage(), List.of());
+        }
+    }
+
+    private double calculateLateFee(BookingDAO dao, Booking booking, LocalDateTime actualReturnDate) throws Exception {
+        if (!actualReturnDate.isAfter(booking.getEndDate())) {
+            return 0; // returned on time
+        }
+
+        long minutesLate = Duration.between(booking.getEndDate(), actualReturnDate).toMinutes();
+        double hoursLate = Math.ceil(minutesLate / 60.0); // round up any partial hour
+
+        double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
+        return hoursLate * rate;
     }
 }
