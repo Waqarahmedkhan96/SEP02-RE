@@ -10,6 +10,8 @@ import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.UpdateBookingRequest;
+import shared.UpdateBookingResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -45,6 +47,16 @@ public class Client {
 
             out.writeObject(request);
             return (GetCustomerBookingsResponse) in.readObject();
+        }
+    }
+
+    public UpdateBookingResponse updateBooking(UpdateBookingRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (UpdateBookingResponse) in.readObject();
         }
     }
 

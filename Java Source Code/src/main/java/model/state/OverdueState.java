@@ -14,4 +14,9 @@ public class OverdueState implements BookingState {
     public BookingState markOverdue(Booking booking) {
         throw new IllegalStateException("Booking is already OVERDUE");
     }
+
+    @Override
+    public BookingState update(Booking booking) {
+        throw new IllegalStateException("Only ACTIVE bookings can be updated");
+    }
 }

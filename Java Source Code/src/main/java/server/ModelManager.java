@@ -18,6 +18,8 @@ import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.UpdateBookingRequest;
+import shared.UpdateBookingResponse;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -89,10 +91,66 @@ public class ModelManager {
 
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
-            return new GetCustomerBookingsResponse(true, "Bookings loaded", dao.findByCustomerId(req.getCustomerId()));
+            List<Booking> bookings = req.isActiveOnly()
+                    ? dao.findActiveByCustomerId(req.getCustomerId())
+                    : dao.findByCustomerId(req.getCustomerId());
+            String message = req.isActiveOnly() ? "Active bookings loaded" : "Bookings loaded";
+            return new GetCustomerBookingsResponse(true, message, bookings);
         } catch (Exception e) {
             e.printStackTrace();
             return new GetCustomerBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public UpdateBookingResponse updateBooking(UpdateBookingRequest req) {
+        if (req.getBookingId() <= 0) {
+            return new UpdateBookingResponse(false, "Booking is required");
+        }
+        if (req.getVehicleId() <= 0) {
+            return new UpdateBookingResponse(false, "Vehicle is required");
+        }
+        if (req.getEmployeeId() <= 0) {
+            return new UpdateBookingResponse(false, "Employee is required");
+        }
+        if (req.getStartDate() == null || req.getEndDate() == null) {
+            return new UpdateBookingResponse(false, "Rental period is required");
+        }
+        if (!req.getStartDate().isBefore(req.getEndDate())) {
+            return new UpdateBookingResponse(false, "Start date must be before end date");
+        }
+
+        String status = req.getBookingStatus() == null || req.getBookingStatus().isBlank()
+                ? "ACTIVE"
+                : req.getBookingStatus().trim().toUpperCase();
+
+        if (!"ACTIVE".equals(status)) {
+            return new UpdateBookingResponse(false, "Update Booking can only keep ACTIVE bookings active");
+        }
+
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            Booking existing = dao.findById(req.getBookingId());
+            if (existing == null) {
+                return new UpdateBookingResponse(false, "Booking cannot be found");
+            }
+
+            BookingState currentState = BookingStateFactory.fromStatus(existing.getBookingStatus());
+            try {
+                currentState.update(existing);
+            } catch (IllegalStateException e) {
+                return new UpdateBookingResponse(false, e.getMessage());
+            }
+
+            Booking updatedBooking = new Booking(req.getStartDate(), req.getEndDate(), status,
+                    existing.getCustomerId(), req.getVehicleId(), req.getEmployeeId());
+            updatedBooking.setBookingId(existing.getBookingId());
+            updatedBooking.setActualReturnDate(existing.getActualReturnDate());
+
+            dao.updateActiveBooking(updatedBooking);
+            return new UpdateBookingResponse(true, "Booking updated");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new UpdateBookingResponse(false, "Database error: " + e.getMessage());
         }
     }
 
