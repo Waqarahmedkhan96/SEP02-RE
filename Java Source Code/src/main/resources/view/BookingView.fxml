@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -8,28 +9,36 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="12" xmlns:fx="http://javafx.com/fxml" fx:controller="view.BookingViewController"
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="view.BookingViewController"
       style="-fx-padding: 20;">
     <GridPane hgap="10" vgap="10">
         <Label text="Customer ID" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <TextField fx:id="customerIdField" promptText="Customer ID" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Vehicle ID" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <TextField fx:id="vehicleIdField" promptText="Vehicle ID" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Booking ID" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="bookingIdField" promptText="Select booking" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="Employee ID" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <TextField fx:id="employeeIdField" promptText="Employee ID" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Vehicle ID" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="vehicleIdField" promptText="Vehicle ID" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-        <Label text="Start" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-        <TextField fx:id="startDateField" promptText="yyyy-MM-ddTHH:mm" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+        <Label text="Employee ID" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <TextField fx:id="employeeIdField" promptText="Employee ID" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-        <Label text="End" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-        <TextField fx:id="endDateField" promptText="yyyy-MM-ddTHH:mm" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        <Label text="Start Date" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <DatePicker fx:id="startDatePicker" promptText="yyyy-MM-dd" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+        <Label text="End Date" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+        <DatePicker fx:id="endDatePicker" promptText="yyyy-MM-dd" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+        <Label text="Status" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+        <TextField fx:id="statusField" text="ACTIVE" promptText="ACTIVE" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
     </GridPane>
 
     <HBox spacing="10">
         <Button text="Create Booking" onAction="#handleCreateBooking"/>
         <Button text="View Customer Bookings" onAction="#handleLoadBookings"/>
+        <Button text="Search Active Bookings" onAction="#handleSearchActiveBookings"/>
+        <Button text="Update Booking" onAction="#handleUpdateBooking"/>
     </HBox>
 
     <TableView fx:id="bookingsTable" prefHeight="320">
