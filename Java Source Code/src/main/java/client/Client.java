@@ -1,18 +1,24 @@
 package client;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.FilterVehiclesRequest;
+import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetVehiclesRequest;
+import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
-
-import java.io.*;
-import java.net.Socket;
 
 public class Client {
     private static final String HOST = "localhost";
@@ -67,4 +73,29 @@ public class Client {
             return (HandleOverdueReturnsResponse) in.readObject();
         }
     }
+
+    public GetVehiclesResponse getVehicles(GetVehiclesRequest request)
+        throws IOException, ClassNotFoundException
+{
+    try (Socket socket = new Socket(HOST, PORT);
+         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
+    {
+        out.writeObject(request);
+        return (GetVehiclesResponse) in.readObject();
+    }
+}
+
+public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest request)
+        throws IOException, ClassNotFoundException
+{
+    try (Socket socket = new Socket(HOST, PORT);
+         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
+    {
+        out.writeObject(request);
+        return (FilterVehiclesResponse) in.readObject();
+    }
+}
+
 }

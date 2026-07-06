@@ -3,6 +3,7 @@ package model;
 public class Vehicle {
     private int vehicleId;
     private String model;
+    private String vehicleType;
     private String color;
     private String engine;
     private String plateNo;
@@ -22,6 +23,9 @@ public class Vehicle {
 
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
+
+    public String getVehicleType() { return vehicleType; }
+    public void setVehicleType(String vehicleType) {this.vehicleType = vehicleType; }
 
     public String getColor() { return color; }
     public void setColor(String color) { this.color = color; }

@@ -1,8 +1,15 @@
 package server;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import dao.BookingDAO;
 import dao.CustomerDAO;
 import dao.DAOFactory;
+import dao.VehicleDAO;
 import model.Booking;
 import model.Customer;
 import model.DrivingLicense;
@@ -14,16 +21,14 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.FilterVehiclesRequest;
+import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetVehiclesRequest;
+import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ModelManager {
 
@@ -171,4 +176,51 @@ public class ModelManager {
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
     }
+    public GetVehiclesResponse getVehicles(GetVehiclesRequest req)
+{
+    try
+    {
+        VehicleDAO dao = DAOFactory.getVehicleDAO();
+
+        return new GetVehiclesResponse(
+                true,
+                "Vehicles loaded",
+                dao.getAllVehicles());
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+
+        return new GetVehiclesResponse(
+                false,
+                "Database error: " + e.getMessage(),
+                Collections.emptyList());
+    }
+}
+
+public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req)
+{
+    try
+    {
+        VehicleDAO dao = DAOFactory.getVehicleDAO();
+
+        return new FilterVehiclesResponse(
+                true,
+                "Vehicles loaded",
+                dao.filterVehicles(
+                        req.getColor(),
+                        req.getVehicleType(),
+                        req.getStatus(),
+                        req.getMaxPrice()));
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+
+        return new FilterVehiclesResponse(
+                false,
+                "Database error: " + e.getMessage(),
+                Collections.emptyList());
+    }
+}
 }

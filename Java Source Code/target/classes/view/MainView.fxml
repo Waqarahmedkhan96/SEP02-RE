@@ -9,4 +9,8 @@
     <Tab text="Bookings" closable="false">
         <fx:include source="BookingView.fxml"/>
     </Tab>
+     <Tab text="Vehicles" closable="false">
+        <fx:include source="VehicleView.fxml"/>
+    </Tab>
+
 </TabPane>
