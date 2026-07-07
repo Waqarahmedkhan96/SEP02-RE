@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -96,7 +97,8 @@
             </columnConstraints>
 
             <Label text="Customer ID" style="-fx-text-fill: #666666;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="customerIdField" promptText="Registered customer ID" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <ComboBox fx:id="customerComboBox" promptText="Select customer" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="customerIdField" visible="false" managed="false" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
 
             <Label text="Start date" style="-fx-text-fill: #666666;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
             <DatePicker fx:id="startDatePicker" promptText="dd/mm/yyyy" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
@@ -105,7 +107,8 @@
             <DatePicker fx:id="endDatePicker" promptText="dd/mm/yyyy" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
 
             <Label text="Employee ID" style="-fx-text-fill: #666666;" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-            <TextField fx:id="employeeIdField" promptText="Employee ID" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            <ComboBox fx:id="employeeIdComboBox" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            <TextField fx:id="employeeIdField" text="999" visible="false" managed="false" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
             <Button text="Show Available Vehicles" onAction="#handleShowAvailableVehicles"
                     style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-weight: bold;"
@@ -121,7 +124,7 @@
             <TextField fx:id="maxPriceFilterField" promptText="DKK" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
 
             <Label text="Status" style="-fx-text-fill: #666666;" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-            <TextField fx:id="vehicleStatusFilterField" promptText="Available" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+            <TextField fx:id="vehicleStatusFilterField" text="Available" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
         </GridPane>
 
         <TableView fx:id="createVehiclesTable" prefHeight="210" maxWidth="1100">
