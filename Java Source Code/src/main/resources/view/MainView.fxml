@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="view.MainViewController"
+<BorderPane fx:id="appRoot" xmlns:fx="http://javafx.com/fxml" fx:controller="view.MainViewController"
             style="-fx-background-color: #e6e6e6;">
     <top>
         <Label fx:id="breadcrumbLabel" text="Employee Start / Dashboard"
