@@ -7,7 +7,6 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -18,10 +17,8 @@ import javafx.util.Duration;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mockdata.MockBookings;
-import mockdata.MockCustomers;
 import mockdata.MockVehicles;
 import model.Booking;
-import model.Customer;
 import model.Vehicle;
 import viewmodel.BookingViewModel;
 
@@ -42,8 +39,6 @@ public class BookingViewController {
     @FXML private TextField vehicleIdField;
     @FXML private TextField updateVehicleIdField;
     @FXML private TextField employeeIdField;
-    @FXML private ComboBox<String> customerComboBox;
-    @FXML private ComboBox<String> employeeIdComboBox;
     @FXML private TextField colorFilterField;
     @FXML private TextField vehicleTypeFilterField;
     @FXML private TextField maxPriceFilterField;
@@ -108,7 +103,6 @@ public class BookingViewController {
         viewModel.endDate.bind(endDatePicker.valueProperty().map(String::valueOf));
         viewModel.bookingStatus.bind(statusField.textProperty());
 
-        setupCustomerAndEmployeeSelectors();
         wireBookingTable(bookingsTable, bookingIdColumn, startDateColumn, endDateColumn, statusColumn, vehicleIdColumn);
         wireVehicleTable();
         wireBookingTable(cancelBookingsTable, cancelBookingIdColumn, cancelStartDateColumn, cancelEndDateColumn,
@@ -189,18 +183,18 @@ public class BookingViewController {
     private void handleShowAvailableVehicles() {
         String color = normalize(colorFilterField.getText());
         String type = normalize(vehicleTypeFilterField.getText());
+        String state = normalize(vehicleStatusFilterField.getText());
         double maxPrice = parseDoubleOrZero(maxPriceFilterField.getText());
 
         ObservableList<Vehicle> filteredVehicles = MockVehicles.getVehicles().stream()
-                .filter(vehicle -> "available".equalsIgnoreCase(vehicle.getCurrentState()))
                 .filter(vehicle -> color.isBlank() || contains(vehicle.getColor(), color))
                 .filter(vehicle -> type.isBlank() || contains(vehicle.getVehicleType(), type))
+                .filter(vehicle -> state.isBlank() || contains(vehicle.getCurrentState(), state))
                 .filter(vehicle -> maxPrice <= 0 || vehicle.getPriceHour() <= maxPrice)
                 .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
 
         createVehiclesTable.setItems(filteredVehicles);
-        clearSelectedVehicle();
-        viewModel.statusMessage.set("Showing " + filteredVehicles.size() + " available mocked vehicle(s)");
+        viewModel.statusMessage.set("Showing " + filteredVehicles.size() + " mocked vehicle(s)");
     }
 
     @FXML
@@ -243,37 +237,6 @@ public class BookingViewController {
         createVehiclesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
-    private void setupCustomerAndEmployeeSelectors() {
-        ObservableList<String> customers = MockCustomers.getCustomers().stream()
-                .map(this::formatCustomerOption)
-                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
-        customerComboBox.setItems(customers);
-        if (!customers.isEmpty()) {
-            customerComboBox.getSelectionModel().selectFirst();
-            customerIdField.setText(extractLeadingId(customers.get(0)));
-        }
-        customerComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selectedValue) -> {
-            if (selectedValue != null) {
-                customerIdField.setText(extractLeadingId(selectedValue));
-            }
-        });
-
-        employeeIdComboBox.setItems(FXCollections.observableArrayList("999"));
-        employeeIdComboBox.getSelectionModel().select("999");
-        employeeIdField.setText("999");
-        employeeIdComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selectedValue) ->
-                employeeIdField.setText(selectedValue == null ? "999" : selectedValue));
-    }
-
-    private String formatCustomerOption(Customer customer) {
-        return customer.getCustomerId() + " - " + customer.getName();
-    }
-
-    private String extractLeadingId(String value) {
-        int dashIndex = value.indexOf("-");
-        return dashIndex > 0 ? value.substring(0, dashIndex).trim() : value.trim();
-    }
-
     private void updateSelectedVehicleStatus(Vehicle selectedVehicle) {
         boolean available = "available".equalsIgnoreCase(selectedVehicle.getCurrentState());
         selectedVehicleStatusLabel.setText(available ? "Available" : selectedVehicle.getCurrentState());
@@ -284,14 +247,6 @@ public class BookingViewController {
         if (!available) {
             viewModel.statusMessage.set("Selected vehicle is " + selectedVehicle.getCurrentState() + " and cannot be booked");
         }
-    }
-
-    private void clearSelectedVehicle() {
-        createVehiclesTable.getSelectionModel().clearSelection();
-        vehicleIdField.clear();
-        selectedVehicleStatusLabel.setText("Select vehicle");
-        selectedVehicleStatusLabel.setStyle("-fx-background-color: #eeeeee; -fx-text-fill: #777777; -fx-background-radius: 16; -fx-padding: 7 20 7 20; -fx-font-weight: bold;");
-        confirmBookingButton.setDisable(false);
     }
 
     private boolean isCreateFormValid() {
