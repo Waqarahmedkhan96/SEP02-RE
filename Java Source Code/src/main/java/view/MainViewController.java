@@ -25,6 +25,10 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
+        appRoot.addEventHandler(NavigationEvents.SHOW_DASHBOARD, event -> {
+            showPage(dashboardPage, "Employee Start / Dashboard");
+            event.consume();
+        });
         bookingPage.addEventHandler(NavigationEvents.SHOW_DASHBOARD, event -> {
             showPage(dashboardPage, "Employee Start / Dashboard");
             event.consume();
