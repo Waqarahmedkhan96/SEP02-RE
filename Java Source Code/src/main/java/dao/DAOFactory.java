@@ -8,4 +8,8 @@ public class DAOFactory {
     public static BookingDAO getBookingDAO() {
         return new BookingDAOImpl();
     }
+
+     public static VehicleDAO getVehicleDAO() {
+        return new VehicleDAOImpl();
+    }
 }

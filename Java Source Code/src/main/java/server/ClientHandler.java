@@ -1,20 +1,28 @@
 package server;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.FilterVehiclesRequest;
+import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetVehiclesRequest;
+import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
-
-import java.io.*;
-import java.net.Socket;
 
 public class ClientHandler implements Runnable {
 
@@ -51,12 +59,24 @@ public class ClientHandler implements Runnable {
             } else if (requestObj instanceof HandleOverdueReturnsRequest req) {
                 HandleOverdueReturnsResponse response = modelManager.handleOverdueReturns(req);
                 out.writeObject(response);
+            } else if (requestObj instanceof GetVehiclesRequest req) {
+              GetVehiclesResponse response = modelManager.getVehicles(req);
+              out.writeObject(response);
+            } else if (requestObj instanceof FilterVehiclesRequest req) {
+              FilterVehiclesResponse response = modelManager.filterVehicles(req);
+              out.writeObject(response);
+            } else if (requestObj instanceof CheckAvailabilityRequest req) {
+              CheckAvailabilityResponse response = modelManager.checkAvailability(req);
+              out.writeObject(response);
             }
+            
+            
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             try { socket.close(); } catch (IOException ignored) {}
         }
+
     }
 }

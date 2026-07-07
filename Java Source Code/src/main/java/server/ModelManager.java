@@ -1,36 +1,43 @@
 package server;
 
-import dao.BookingDAO;
-import dao.CustomerDAO;
-import dao.DAOFactory;
-import model.Booking;
-import model.Customer;
-import model.DrivingLicense;
-import model.state.BookingState;
-import model.state.BookingStateFactory;
-import shared.CompleteBookingRequest;
-import shared.CompleteBookingResponse;
-import shared.CreateBookingRequest;
-import shared.CreateBookingResponse;
-import shared.CreateCustomerRequest;
-import shared.CreateCustomerResponse;
-import shared.GetCustomerBookingsRequest;
-import shared.GetCustomerBookingsResponse;
-import shared.HandleOverdueReturnsRequest;
-import shared.HandleOverdueReturnsResponse;
-import shared.UpdateBookingRequest;
-import shared.UpdateBookingResponse;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import dao.BookingDAO;
+import dao.CustomerDAO;
+import dao.DAOFactory;
+import dao.VehicleDAO;
+import model.Booking;
+import model.Customer;
+import model.DrivingLicense;
+import model.state.BookingState;
+import model.state.BookingStateFactory;
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
+import shared.CompleteBookingRequest;
+import shared.CompleteBookingResponse;
+import shared.CreateBookingRequest;
+import shared.CreateBookingResponse;
+import shared.CreateCustomerRequest;
+import shared.CreateCustomerResponse;
+import shared.FilterVehiclesRequest;
+import shared.FilterVehiclesResponse;
+import shared.GetCustomerBookingsRequest;
+import shared.GetCustomerBookingsResponse;
+import shared.GetVehiclesRequest;
+import shared.GetVehiclesResponse;
+import shared.HandleOverdueReturnsRequest;
+import shared.HandleOverdueReturnsResponse;
+import shared.UpdateBookingRequest;
+import shared.UpdateBookingResponse;
+
 public class ModelManager {
 
     public CreateCustomerResponse createCustomer(CreateCustomerRequest req) {
-        // basic validation — expand as your team defines actual rules
+        // basic validation - expand as your team defines actual rules
         if (req.getName() == null || req.getName().isBlank()) {
             return new CreateCustomerResponse(false, "Name is required", -1);
         }
@@ -170,7 +177,7 @@ public class ModelManager {
             BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
             BookingState nextState;
             try {
-                nextState = currentState.complete(booking); // throws if transition is invalid
+                nextState = currentState.complete(booking);
             } catch (IllegalStateException e) {
                 return new CompleteBookingResponse(false, e.getMessage(), 0);
             }
@@ -201,11 +208,11 @@ public class ModelManager {
             for (Booking booking : candidates) {
                 BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
                 try {
-                    currentState.markOverdue(booking); // validates transition
+                    currentState.markOverdue(booking);
                     dao.markOverdue(booking.getBookingId());
                     markedOverdue.add(booking.getBookingId());
                 } catch (IllegalStateException ignored) {
-                    // shouldn't happen since findOverdueCandidates only returns ACTIVE bookings, but stay defensive
+                    // Defensive: findOverdueCandidates should only return ACTIVE bookings.
                 }
             }
 
@@ -218,13 +225,45 @@ public class ModelManager {
         }
     }
 
+    public GetVehiclesResponse getVehicles(GetVehiclesRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new GetVehiclesResponse(true, "Vehicles loaded", dao.getAllVehicles());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetVehiclesResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new FilterVehiclesResponse(true, "Vehicles loaded",
+                    dao.filterVehicles(req.getColor(), req.getVehicleType(), req.getStatus(), req.getMaxPrice()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new FilterVehiclesResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new CheckAvailabilityResponse(
+                    dao.getAvailableVehicles(req.getStartDateTime(), req.getEndDateTime()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CheckAvailabilityResponse(Collections.emptyList());
+        }
+    }
+
     private double calculateLateFee(BookingDAO dao, Booking booking, LocalDateTime actualReturnDate) throws Exception {
         if (!actualReturnDate.isAfter(booking.getEndDate())) {
-            return 0; // returned on time
+            return 0;
         }
 
         long minutesLate = Duration.between(booking.getEndDate(), actualReturnDate).toMinutes();
-        double hoursLate = Math.ceil(minutesLate / 60.0); // round up any partial hour
+        double hoursLate = Math.ceil(minutesLate / 60.0);
 
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
