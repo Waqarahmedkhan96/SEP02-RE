@@ -7,11 +7,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
+import mockdata.MockBookings;
+import mockdata.MockVehicles;
 
 public class MainViewController {
 
     @FXML private BorderPane appRoot;
     @FXML private Label breadcrumbLabel;
+    @FXML private Label activeBookingsValueLabel;
+    @FXML private Label availableVehiclesValueLabel;
+    @FXML private Label overdueReturnsValueLabel;
+    @FXML private Label completedTodayValueLabel;
     @FXML private VBox dashboardPage;
     @FXML private VBox customerPage;
     @FXML private VBox vehiclePage;
@@ -23,6 +29,7 @@ public class MainViewController {
             showPage(dashboardPage, "Employee Start / Dashboard");
             event.consume();
         });
+        loadDashboardMockData();
         addButtonAnimations(appRoot);
     }
 
@@ -52,6 +59,13 @@ public class MainViewController {
     private void setPageVisible(VBox page, boolean visible) {
         page.setVisible(visible);
         page.setManaged(visible);
+    }
+
+    private void loadDashboardMockData() {
+        activeBookingsValueLabel.setText(String.valueOf(MockBookings.countByStatus("ACTIVE")));
+        availableVehiclesValueLabel.setText(String.valueOf(MockVehicles.countAvailableVehicles()));
+        overdueReturnsValueLabel.setText(String.valueOf(MockBookings.countByStatus("OVERDUE")));
+        completedTodayValueLabel.setText(String.valueOf(MockBookings.countCompletedToday()));
     }
 
     private void addButtonAnimations(Node root) {

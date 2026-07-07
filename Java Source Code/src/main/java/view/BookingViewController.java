@@ -14,7 +14,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.collections.FXCollections;
+import mockdata.MockBookings;
+import mockdata.MockVehicles;
 import model.Booking;
+import model.Vehicle;
 import viewmodel.BookingViewModel;
 
 public class BookingViewController {
@@ -44,12 +48,34 @@ public class BookingViewController {
     @FXML private TableColumn<Booking, String> statusColumn;
     @FXML private TableColumn<Booking, Number> vehicleIdColumn;
 
-    @FXML private TableView<Booking> createBookingsTable;
-    @FXML private TableColumn<Booking, Number> createBookingIdColumn;
-    @FXML private TableColumn<Booking, String> createStartDateColumn;
-    @FXML private TableColumn<Booking, String> createEndDateColumn;
-    @FXML private TableColumn<Booking, String> createStatusColumn;
-    @FXML private TableColumn<Booking, Number> createVehicleIdColumn;
+    @FXML private TableView<Vehicle> createVehiclesTable;
+    @FXML private TableColumn<Vehicle, Number> createVehicleIdColumn;
+    @FXML private TableColumn<Vehicle, String> createVehicleModelColumn;
+    @FXML private TableColumn<Vehicle, String> createVehicleTypeColumn;
+    @FXML private TableColumn<Vehicle, String> createVehicleColorColumn;
+    @FXML private TableColumn<Vehicle, Number> createVehiclePriceColumn;
+    @FXML private TableColumn<Vehicle, String> createVehicleStatusColumn;
+
+    @FXML private TableView<Booking> cancelBookingsTable;
+    @FXML private TableColumn<Booking, Number> cancelBookingIdColumn;
+    @FXML private TableColumn<Booking, String> cancelStartDateColumn;
+    @FXML private TableColumn<Booking, String> cancelEndDateColumn;
+    @FXML private TableColumn<Booking, String> cancelStatusColumn;
+    @FXML private TableColumn<Booking, Number> cancelVehicleIdColumn;
+
+    @FXML private TableView<Booking> completeBookingsTable;
+    @FXML private TableColumn<Booking, Number> completeBookingIdColumn;
+    @FXML private TableColumn<Booking, String> completeStartDateColumn;
+    @FXML private TableColumn<Booking, String> completeEndDateColumn;
+    @FXML private TableColumn<Booking, String> completeStatusColumn;
+    @FXML private TableColumn<Booking, Number> completeVehicleIdColumn;
+
+    @FXML private TableView<Booking> historyBookingsTable;
+    @FXML private TableColumn<Booking, Number> historyBookingIdColumn;
+    @FXML private TableColumn<Booking, String> historyStartDateColumn;
+    @FXML private TableColumn<Booking, String> historyEndDateColumn;
+    @FXML private TableColumn<Booking, String> historyStatusColumn;
+    @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
 
     @FXML private Label statusLabel;
 
@@ -66,11 +92,24 @@ public class BookingViewController {
         viewModel.bookingStatus.bind(statusField.textProperty());
 
         wireBookingTable(bookingsTable, bookingIdColumn, startDateColumn, endDateColumn, statusColumn, vehicleIdColumn);
-        wireBookingTable(createBookingsTable, createBookingIdColumn, createStartDateColumn, createEndDateColumn,
-                createStatusColumn, createVehicleIdColumn);
+        wireVehicleTable();
+        wireBookingTable(cancelBookingsTable, cancelBookingIdColumn, cancelStartDateColumn, cancelEndDateColumn,
+                cancelStatusColumn, cancelVehicleIdColumn);
+        wireBookingTable(completeBookingsTable, completeBookingIdColumn, completeStartDateColumn, completeEndDateColumn,
+                completeStatusColumn, completeVehicleIdColumn);
+        wireBookingTable(historyBookingsTable, historyBookingIdColumn, historyStartDateColumn, historyEndDateColumn,
+                historyStatusColumn, historyVehicleIdColumn);
 
         bookingsTable.setItems(viewModel.customerBookings);
-        createBookingsTable.setItems(viewModel.customerBookings);
+        createVehiclesTable.setItems(FXCollections.observableArrayList(MockVehicles.getVehicles()));
+        createVehiclesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVehicle, selectedVehicle) -> {
+            if (selectedVehicle != null) {
+                vehicleIdField.setText(String.valueOf(selectedVehicle.getVehicleId()));
+            }
+        });
+        cancelBookingsTable.setItems(FXCollections.observableArrayList(MockBookings.getBookings()));
+        completeBookingsTable.setItems(FXCollections.observableArrayList(MockBookings.getBookings()));
+        historyBookingsTable.setItems(FXCollections.observableArrayList(MockBookings.getBookings()));
         bookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
                 fillUpdateForm(selectedBooking));
 
@@ -150,6 +189,16 @@ public class BookingViewController {
         bookingStatusColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getBookingStatus()));
         vehicleColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getVehicleId()));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+    }
+
+    private void wireVehicleTable() {
+        createVehicleIdColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getVehicleId()));
+        createVehicleModelColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getModel()));
+        createVehicleTypeColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getVehicleType()));
+        createVehicleColorColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getColor()));
+        createVehiclePriceColumn.setCellValueFactory(data -> new SimpleIntegerProperty((int) data.getValue().getPriceHour()));
+        createVehicleStatusColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCurrentState()));
+        createVehiclesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     private void fillUpdateForm(Booking selectedBooking) {

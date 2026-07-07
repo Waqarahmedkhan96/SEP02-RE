@@ -62,19 +62,19 @@
                         </columnConstraints>
                         <VBox spacing="8" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="0">
                             <Label text="Active bookings" style="-fx-text-fill: #777777;"/>
-                            <Label text="18" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
+                            <Label fx:id="activeBookingsValueLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
                         </VBox>
                         <VBox spacing="8" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0">
                             <Label text="Available vehicles" style="-fx-text-fill: #777777;"/>
-                            <Label text="12" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #20964b;"/>
+                            <Label fx:id="availableVehiclesValueLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #20964b;"/>
                         </VBox>
                         <VBox spacing="8" maxWidth="Infinity" GridPane.columnIndex="2" GridPane.rowIndex="0">
                             <Label text="Overdue returns" style="-fx-text-fill: #777777;"/>
-                            <Label text="3" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #c8202f;"/>
+                            <Label fx:id="overdueReturnsValueLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #c8202f;"/>
                         </VBox>
                         <VBox spacing="8" maxWidth="Infinity" GridPane.columnIndex="3" GridPane.rowIndex="0">
                             <Label text="Completed today" style="-fx-text-fill: #777777;"/>
-                            <Label text="5" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2b61bf;"/>
+                            <Label fx:id="completedTodayValueLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2b61bf;"/>
                         </VBox>
                     </GridPane>
                 </VBox>

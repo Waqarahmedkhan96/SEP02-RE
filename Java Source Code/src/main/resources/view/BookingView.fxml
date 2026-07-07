@@ -124,13 +124,14 @@
             <TextField promptText="Available" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
         </GridPane>
 
-        <TableView fx:id="createBookingsTable" prefHeight="210" maxWidth="1100">
+        <TableView fx:id="createVehiclesTable" prefHeight="210" maxWidth="1100">
             <columns>
-                <TableColumn fx:id="createBookingIdColumn" text="Booking ID" prefWidth="120"/>
-                <TableColumn fx:id="createStartDateColumn" text="Start" prefWidth="170"/>
-                <TableColumn fx:id="createEndDateColumn" text="End" prefWidth="170"/>
-                <TableColumn fx:id="createStatusColumn" text="Status" prefWidth="140"/>
-                <TableColumn fx:id="createVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
+                <TableColumn fx:id="createVehicleIdColumn" text="ID" prefWidth="90"/>
+                <TableColumn fx:id="createVehicleModelColumn" text="Vehicle" prefWidth="170"/>
+                <TableColumn fx:id="createVehicleTypeColumn" text="Type" prefWidth="140"/>
+                <TableColumn fx:id="createVehicleColorColumn" text="Color" prefWidth="140"/>
+                <TableColumn fx:id="createVehiclePriceColumn" text="Price/hour" prefWidth="130"/>
+                <TableColumn fx:id="createVehicleStatusColumn" text="Status" prefWidth="140"/>
             </columns>
         </TableView>
 
@@ -229,6 +230,15 @@
             <TextField promptText="Customer name, phone, booking ID" prefWidth="360"/>
             <Button text="Find Booking" style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;" prefWidth="150" prefHeight="42"/>
         </HBox>
+        <TableView fx:id="cancelBookingsTable" prefHeight="150" maxWidth="980">
+            <columns>
+                <TableColumn fx:id="cancelBookingIdColumn" text="Booking ID" prefWidth="120"/>
+                <TableColumn fx:id="cancelStartDateColumn" text="Start" prefWidth="180"/>
+                <TableColumn fx:id="cancelEndDateColumn" text="End" prefWidth="180"/>
+                <TableColumn fx:id="cancelStatusColumn" text="Status" prefWidth="140"/>
+                <TableColumn fx:id="cancelVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
+            </columns>
+        </TableView>
         <Label text="Cancellation UI placeholder. Cancellation business logic will be connected when the use case is implemented."
                style="-fx-background-color: white; -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 28; -fx-text-fill: #777777;"
                maxWidth="980"/>
@@ -247,6 +257,15 @@
             <TextField promptText="Booking ID, customer, reg no" prefWidth="360"/>
             <Button text="Search" style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;" prefWidth="110" prefHeight="42"/>
         </HBox>
+        <TableView fx:id="completeBookingsTable" prefHeight="150" maxWidth="980">
+            <columns>
+                <TableColumn fx:id="completeBookingIdColumn" text="Booking ID" prefWidth="120"/>
+                <TableColumn fx:id="completeStartDateColumn" text="Start" prefWidth="180"/>
+                <TableColumn fx:id="completeEndDateColumn" text="End" prefWidth="180"/>
+                <TableColumn fx:id="completeStatusColumn" text="Status" prefWidth="140"/>
+                <TableColumn fx:id="completeVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
+            </columns>
+        </TableView>
         <Label text="Return UI placeholder. Complete booking logic already exists and can be connected in the next UI pass."
                style="-fx-background-color: white; -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 28; -fx-text-fill: #777777;"
                maxWidth="980"/>
@@ -273,6 +292,15 @@
             <TextField promptText="This month" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
             <Button text="Apply Filters" style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;" maxWidth="Infinity" prefHeight="42" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
         </GridPane>
+        <TableView fx:id="historyBookingsTable" prefHeight="190" maxWidth="980">
+            <columns>
+                <TableColumn fx:id="historyBookingIdColumn" text="Booking ID" prefWidth="120"/>
+                <TableColumn fx:id="historyStartDateColumn" text="Start" prefWidth="180"/>
+                <TableColumn fx:id="historyEndDateColumn" text="End" prefWidth="180"/>
+                <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="140"/>
+                <TableColumn fx:id="historyVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
+            </columns>
+        </TableView>
         <Label text="Archive UI placeholder. Read-only booking history data can be connected when the archive use case is implemented."
                style="-fx-background-color: white; -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 28; -fx-text-fill: #777777;"
                maxWidth="980"/>
