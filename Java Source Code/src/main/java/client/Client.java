@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
@@ -95,6 +97,18 @@ public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest request)
     {
         out.writeObject(request);
         return (FilterVehiclesResponse) in.readObject();
+    }
+}
+
+public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest request)
+        throws IOException, ClassNotFoundException
+{
+    try (Socket socket = new Socket(HOST, PORT);
+         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
+    {
+        out.writeObject(request);
+        return (CheckAvailabilityResponse) in.readObject();
     }
 }
 

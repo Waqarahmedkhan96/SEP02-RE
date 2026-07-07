@@ -15,6 +15,8 @@ import model.Customer;
 import model.DrivingLicense;
 import model.state.BookingState;
 import model.state.BookingStateFactory;
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
@@ -223,4 +225,24 @@ public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req)
                 Collections.emptyList());
     }
 }
+
+public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest req)
+{
+    try
+    {
+        VehicleDAO dao = DAOFactory.getVehicleDAO();
+return new CheckAvailabilityResponse(
+        dao.getAvailableVehicles(
+                req.getStartDateTime(),
+                req.getEndDateTime()));
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+
+        return new CheckAvailabilityResponse(
+                Collections.emptyList());
+    }
+}
+
 }

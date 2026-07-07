@@ -12,6 +12,9 @@ import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
+import java.time.LocalDateTime;
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 
 public class VehicleViewModel {
 
@@ -82,21 +85,26 @@ public class VehicleViewModel {
 
     }
 
-    public void checkAvailability() {
+  public void checkAvailability() {
 
     try {
 
-        // Temporary implementation
-        // Later this will call the server
+        LocalDateTime start = LocalDateTime.parse(startDate.get());
+        LocalDateTime end = LocalDateTime.parse(endDate.get());
 
-        loadVehicles();
+        CheckAvailabilityResponse response =
+                client.checkAvailability(
+                        new CheckAvailabilityRequest(start, end));
 
-        statusMessage.set(
-                "Availability check is not connected to the server yet.");
+        vehicles.setAll(response.getAvailableVehicles());
+
+        statusMessage.set(response.getAvailableVehicles().size()
+                + " vehicle(s) available.");
 
     }
     catch (Exception e)
     {
+        vehicles.clear();
         statusMessage.set(e.getMessage());
     }
 }

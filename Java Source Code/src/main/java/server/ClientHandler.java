@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
@@ -58,7 +60,11 @@ public class ClientHandler implements Runnable {
             } else if (requestObj instanceof FilterVehiclesRequest req) {
               FilterVehiclesResponse response = modelManager.filterVehicles(req);
               out.writeObject(response);
+            } else if (requestObj instanceof CheckAvailabilityRequest req) {
+              CheckAvailabilityResponse response = modelManager.checkAvailability(req);
+              out.writeObject(response);
             }
+            
             
 
         } catch (IOException | ClassNotFoundException e) {
@@ -66,5 +72,6 @@ public class ClientHandler implements Runnable {
         } finally {
             try { socket.close(); } catch (IOException ignored) {}
         }
+
     }
 }
