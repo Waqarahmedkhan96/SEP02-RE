@@ -110,6 +110,148 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
+    public List<Booking> searchBookings(String query, boolean cancellableOnly) throws SQLException {
+        String normalizedQuery = query == null ? "" : query.trim();
+        StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
+                "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id " +
+                "FROM booking b " +
+                "JOIN customer c ON c.customer_id = b.customer_id " +
+                "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
+                "WHERE 1 = 1 ");
+
+        if (cancellableOnly) {
+            sql.append("AND UPPER(b.booking_status) IN ('ACTIVE', 'PENDING') ");
+        }
+
+        boolean hasQuery = !normalizedQuery.isBlank();
+        Integer numericQuery = tryParseInt(normalizedQuery);
+        if (hasQuery) {
+            sql.append("AND (LOWER(c.name) LIKE LOWER(?) " +
+                    "OR c.phone_no LIKE ? " +
+                    "OR c.email ILIKE ? " +
+                    "OR c.cpr LIKE ? " +
+                    "OR c.passport_no ILIKE ? " +
+                    "OR v.model ILIKE ? " +
+                    "OR v.vehicle_type ILIKE ? " +
+                    "OR v.plate_no ILIKE ? ");
+            if (numericQuery != null) {
+                sql.append("OR b.booking_id = ? OR c.customer_id = ? OR b.vehicle_id = ? ");
+            }
+            sql.append(") ");
+        }
+
+        sql.append("ORDER BY b.start_date DESC, b.booking_id DESC");
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            if (hasQuery) {
+                String likeQuery = "%" + normalizedQuery + "%";
+                int index = 1;
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                stmt.setString(index++, likeQuery);
+                if (numericQuery != null) {
+                    stmt.setInt(index++, numericQuery);
+                    stmt.setInt(index++, numericQuery);
+                    stmt.setInt(index, numericQuery);
+                }
+            }
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
+    public List<Booking> searchArchivedBookings(String customerQuery, String vehicleQuery, String dateQuery) throws SQLException {
+        String normalizedCustomer = customerQuery == null ? "" : customerQuery.trim();
+        String normalizedVehicle = vehicleQuery == null ? "" : vehicleQuery.trim();
+        String normalizedDate = dateQuery == null ? "" : dateQuery.trim();
+
+        StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
+                "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id " +
+                "FROM booking b " +
+                "JOIN customer c ON c.customer_id = b.customer_id " +
+                "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
+                "WHERE UPPER(b.booking_status) = 'COMPLETED' ");
+
+        Integer customerNumber = tryParseInt(normalizedCustomer);
+        Integer vehicleNumber = tryParseInt(normalizedVehicle);
+        if (!normalizedCustomer.isBlank()) {
+            sql.append("AND (c.name ILIKE ? OR c.phone_no ILIKE ? OR c.email ILIKE ? OR c.cpr ILIKE ? OR c.passport_no ILIKE ? ");
+            if (customerNumber != null) {
+                sql.append("OR c.customer_id = ? ");
+            }
+            sql.append(") ");
+        }
+
+        if (!normalizedVehicle.isBlank()) {
+            sql.append("AND (v.model ILIKE ? OR v.vehicle_type ILIKE ? OR v.plate_no ILIKE ? ");
+            if (vehicleNumber != null) {
+                sql.append("OR v.vehicle_id = ? ");
+            }
+            sql.append(") ");
+        }
+
+        if (!normalizedDate.isBlank()) {
+            sql.append("AND (TO_CHAR(b.start_date, 'YYYY-MM-DD') LIKE ? " +
+                    "OR TO_CHAR(b.end_date, 'YYYY-MM-DD') LIKE ? " +
+                    "OR TO_CHAR(b.actual_return_date, 'YYYY-MM-DD') LIKE ?) ");
+        }
+
+        sql.append("ORDER BY b.actual_return_date DESC NULLS LAST, b.end_date DESC, b.booking_id DESC");
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (!normalizedCustomer.isBlank()) {
+                String likeCustomer = "%" + normalizedCustomer + "%";
+                stmt.setString(index++, likeCustomer);
+                stmt.setString(index++, likeCustomer);
+                stmt.setString(index++, likeCustomer);
+                stmt.setString(index++, likeCustomer);
+                stmt.setString(index++, likeCustomer);
+                if (customerNumber != null) {
+                    stmt.setInt(index++, customerNumber);
+                }
+            }
+
+            if (!normalizedVehicle.isBlank()) {
+                String likeVehicle = "%" + normalizedVehicle + "%";
+                stmt.setString(index++, likeVehicle);
+                stmt.setString(index++, likeVehicle);
+                stmt.setString(index++, likeVehicle);
+                if (vehicleNumber != null) {
+                    stmt.setInt(index++, vehicleNumber);
+                }
+            }
+
+            if (!normalizedDate.isBlank()) {
+                String likeDate = "%" + normalizedDate + "%";
+                stmt.setString(index++, likeDate);
+                stmt.setString(index++, likeDate);
+                stmt.setString(index, likeDate);
+            }
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
     public Booking findById(int bookingId) throws SQLException {
         String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
                 "customer_id, vehicle_id, employee_id " +
@@ -173,6 +315,43 @@ public class BookingDAOImpl implements BookingDAO {
                     stmt.setInt(1, booking.getVehicleId());
                     stmt.executeUpdate();
                 }
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        }
+    }
+
+    @Override
+    public void cancelBooking(int bookingId, int vehicleId, String newStatus) throws SQLException {
+        String updateBookingSql = "UPDATE booking SET booking_status = ? " +
+                "WHERE booking_id = ? AND UPPER(booking_status) IN ('ACTIVE', 'PENDING')";
+        String updateVehicleSql = "UPDATE vehicle SET current_state = 'available' WHERE vehicle_id = ?";
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingSql)) {
+                stmt.setString(1, newStatus);
+                stmt.setInt(2, bookingId);
+                int updated = stmt.executeUpdate();
+                if (updated == 0) {
+                    throw new SQLException("Booking was changed by another employee before confirmation");
+                }
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateVehicleSql)) {
+                stmt.setInt(1, vehicleId);
+                stmt.executeUpdate();
             }
 
             conn.commit();
@@ -346,6 +525,14 @@ public class BookingDAOImpl implements BookingDAO {
             stmt.setTimestamp(4, Timestamp.valueOf(booking.getStartDate()));
             ResultSet rs = stmt.executeQuery();
             return !rs.next();
+        }
+    }
+
+    private Integer tryParseInt(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

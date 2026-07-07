@@ -6,7 +6,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -26,7 +28,9 @@ import model.Vehicle;
 import viewmodel.BookingViewModel;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Optional;
 
 public class BookingViewController {
 
@@ -48,6 +52,7 @@ public class BookingViewController {
     @FXML private TextField vehicleTypeFilterField;
     @FXML private TextField maxPriceFilterField;
     @FXML private TextField vehicleStatusFilterField;
+    @FXML private TextField cancelSearchField;
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
     @FXML private DatePicker updateStartDatePicker;
@@ -70,6 +75,8 @@ public class BookingViewController {
     @FXML private TableColumn<Vehicle, String> createVehicleStatusColumn;
     @FXML private Label selectedVehicleStatusLabel;
     @FXML private Button confirmBookingButton;
+    @FXML private Label cancelSelectionLabel;
+    @FXML private Button confirmCancelBookingButton;
 
     @FXML private TableView<Booking> cancelBookingsTable;
     @FXML private TableColumn<Booking, Number> cancelBookingIdColumn;
@@ -91,6 +98,10 @@ public class BookingViewController {
     @FXML private TableColumn<Booking, String> historyEndDateColumn;
     @FXML private TableColumn<Booking, String> historyStatusColumn;
     @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
+    @FXML private TextField historyCustomerFilterField;
+    @FXML private TextField historyVehicleFilterField;
+    @FXML private TextField historyDateFilterField;
+    @FXML private Label historyDetailsLabel;
 
     @FXML private Label statusLabel;
 
@@ -126,11 +137,15 @@ public class BookingViewController {
                 updateSelectedVehicleStatus(selectedVehicle);
             }
         });
-        cancelBookingsTable.setItems(mockBookings);
+        cancelBookingsTable.setItems(viewModel.cancellableBookings);
         completeBookingsTable.setItems(mockBookings);
-        historyBookingsTable.setItems(mockBookings);
+        historyBookingsTable.setItems(viewModel.archivedBookings);
         bookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
                 fillUpdateForm(selectedBooking));
+        cancelBookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
+                updateCancelSelection(selectedBooking));
+        historyBookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
+                showArchivedBookingDetails(selectedBooking));
 
         statusLabel.textProperty().bind(viewModel.statusMessage);
         statusLabel.visibleProperty().bind(viewModel.statusMessage.isNotEmpty());
@@ -159,6 +174,7 @@ public class BookingViewController {
     @FXML
     private void showCancelBooking() {
         showPage(cancelPage);
+        handleSearchCancellableBookings();
     }
 
     @FXML
@@ -169,6 +185,26 @@ public class BookingViewController {
     @FXML
     private void showBookingHistory() {
         showPage(historyPage);
+        handleApplyHistoryFilters();
+    }
+
+    @FXML
+    private void handleApplyHistoryFilters() {
+        viewModel.loadArchivedBookings(
+                historyCustomerFilterField.getText(),
+                historyVehicleFilterField.getText(),
+                historyDateFilterField.getText()
+        );
+        historyBookingsTable.getSelectionModel().clearSelection();
+        historyDetailsLabel.setText("Select an archived booking to view details.");
+    }
+
+    @FXML
+    private void handleClearHistoryFilters() {
+        historyCustomerFilterField.clear();
+        historyVehicleFilterField.clear();
+        historyDateFilterField.clear();
+        handleApplyHistoryFilters();
     }
 
     @FXML
@@ -218,6 +254,45 @@ public class BookingViewController {
         copyUpdateFieldsToBoundCreateFields();
         if (viewModel.updateBooking()) {
             viewModel.loadActiveCustomerBookings();
+        }
+    }
+
+    @FXML
+    private void handleSearchCancellableBookings() {
+        String query = cancelSearchField == null ? "" : cancelSearchField.getText();
+        boolean loadedFromServer = viewModel.searchCancellableBookings(query);
+        if (!loadedFromServer) {
+            showMockCancellableBookings(query);
+        }
+        cancelBookingsTable.getSelectionModel().clearSelection();
+        updateCancelSelection(null);
+    }
+
+    @FXML
+    private void handleCancelBooking() {
+        Booking selectedBooking = cancelBookingsTable.getSelectionModel().getSelectedItem();
+        if (selectedBooking == null) {
+            viewModel.statusMessage.set("Select a booking to cancel");
+            return;
+        }
+
+        if (!selectedBooking.getStartDate().isAfter(LocalDateTime.now())) {
+            viewModel.statusMessage.set("The booking period has already started, so the booking cannot be cancelled");
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Cancel Booking");
+        confirmation.setHeaderText("Cancel booking #" + selectedBooking.getBookingId() + "?");
+        confirmation.setContentText("The booking will be marked as cancelled and the vehicle will be released for this period.");
+        Optional<ButtonType> result = confirmation.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            viewModel.statusMessage.set("Cancellation process cancelled");
+            return;
+        }
+
+        if (viewModel.cancelBooking(selectedBooking.getBookingId())) {
+            handleSearchCancellableBookings();
         }
     }
 
@@ -311,6 +386,54 @@ public class BookingViewController {
                 .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
         viewModel.customerBookings.setAll(activeBookings);
         viewModel.statusMessage.set("Showing " + activeBookings.size() + " mocked active booking(s)");
+    }
+
+    private void showMockCancellableBookings(String query) {
+        String normalizedQuery = normalize(query);
+        ObservableList<Booking> cancellableBookings = MockBookings.getBookings().stream()
+                .filter(booking -> "ACTIVE".equalsIgnoreCase(booking.getBookingStatus())
+                        || "PENDING".equalsIgnoreCase(booking.getBookingStatus()))
+                .filter(booking -> normalizedQuery.isBlank()
+                        || String.valueOf(booking.getBookingId()).contains(normalizedQuery)
+                        || String.valueOf(booking.getCustomerId()).contains(normalizedQuery)
+                        || String.valueOf(booking.getVehicleId()).contains(normalizedQuery))
+                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+        viewModel.cancellableBookings.setAll(cancellableBookings);
+        viewModel.statusMessage.set(cancellableBookings.isEmpty()
+                ? "Booking cannot be found"
+                : "Showing " + cancellableBookings.size() + " mocked cancellable booking(s)");
+    }
+
+    private void updateCancelSelection(Booking selectedBooking) {
+        boolean hasSelection = selectedBooking != null;
+        confirmCancelBookingButton.setDisable(!hasSelection);
+        if (!hasSelection) {
+            cancelSelectionLabel.setText("Select a booking to cancel");
+            return;
+        }
+
+        cancelSelectionLabel.setText("Booking #" + selectedBooking.getBookingId()
+                + " | Vehicle #" + selectedBooking.getVehicleId()
+                + " | " + selectedBooking.getStartDate().toLocalDate()
+                + " to " + selectedBooking.getEndDate().toLocalDate());
+    }
+
+    private void showArchivedBookingDetails(Booking booking) {
+        if (booking == null) {
+            return;
+        }
+
+        String actualReturn = booking.getActualReturnDate() == null
+                ? "Not recorded"
+                : String.valueOf(booking.getActualReturnDate());
+        historyDetailsLabel.setText("Booking #" + booking.getBookingId()
+                + " | Customer ID: " + booking.getCustomerId()
+                + " | Vehicle ID: " + booking.getVehicleId()
+                + " | Employee ID: " + booking.getEmployeeId()
+                + " | Start: " + booking.getStartDate()
+                + " | End: " + booking.getEndDate()
+                + " | Returned: " + actualReturn
+                + " | Status: " + booking.getBookingStatus());
     }
 
     private void fillUpdateForm(Booking selectedBooking) {

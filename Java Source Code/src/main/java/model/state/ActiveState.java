@@ -19,4 +19,9 @@ public class ActiveState implements BookingState {
     public BookingState update(Booking booking) {
         return this;
     }
+
+    @Override
+    public BookingState cancel(Booking booking) {
+        return new CancelledState();
+    }
 }

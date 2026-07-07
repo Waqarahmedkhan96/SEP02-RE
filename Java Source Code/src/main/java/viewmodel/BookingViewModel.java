@@ -8,10 +8,14 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Booking;
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.SearchBookingsRequest;
+import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
 
@@ -32,6 +36,8 @@ public class BookingViewModel {
     public final StringProperty bookingStatus = new SimpleStringProperty("ACTIVE");
     public final StringProperty statusMessage = new SimpleStringProperty();
     public final ObservableList<Booking> customerBookings = FXCollections.observableArrayList();
+    public final ObservableList<Booking> cancellableBookings = FXCollections.observableArrayList();
+    public final ObservableList<Booking> archivedBookings = FXCollections.observableArrayList();
 
     public void submit() {
         try {
@@ -86,6 +92,60 @@ public class BookingViewModel {
         } catch (DateTimeParseException e) {
             statusMessage.set("Select start and end dates");
             return false;
+        } catch (Exception e) {
+            statusMessage.set("Connection error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean searchCancellableBookings(String query) {
+        try {
+            SearchBookingsResponse res = client.searchBookings(new SearchBookingsRequest(query, true));
+            if (res.isSuccess()) {
+                cancellableBookings.setAll(res.getBookings());
+                statusMessage.set(res.getMessage() + " (" + res.getBookings().size() + ")");
+                return true;
+            } else {
+                cancellableBookings.clear();
+                statusMessage.set("Failed: " + res.getMessage());
+                return false;
+            }
+        } catch (Exception e) {
+            cancellableBookings.clear();
+            statusMessage.set("Connection error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void loadArchivedBookings(String customerQuery, String vehicleQuery, String dateQuery) {
+        try {
+            SearchBookingsResponse res = client.searchBookings(
+                    new SearchBookingsRequest(customerQuery, vehicleQuery, dateQuery, true)
+            );
+
+            if (res.isSuccess()) {
+                archivedBookings.setAll(res.getBookings());
+                statusMessage.set(res.getMessage());
+            } else {
+                archivedBookings.clear();
+                statusMessage.set("Failed: " + res.getMessage());
+            }
+        } catch (Exception e) {
+            archivedBookings.clear();
+            statusMessage.set("Connection error: " + e.getMessage());
+        }
+    }
+
+    public boolean cancelBooking(int bookingId) {
+        try {
+            CancelBookingResponse res = client.cancelBooking(new CancelBookingRequest(bookingId));
+            if (res.isSuccess()) {
+                statusMessage.set(res.getMessage());
+                return true;
+            } else {
+                statusMessage.set("Failed: " + res.getMessage());
+                return false;
+            }
         } catch (Exception e) {
             statusMessage.set("Connection error: " + e.getMessage());
             return false;

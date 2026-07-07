@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
@@ -21,6 +23,8 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.SearchBookingsRequest;
+import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
 
@@ -58,6 +62,16 @@ public class Client {
         }
     }
 
+    public SearchBookingsResponse searchBookings(SearchBookingsRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (SearchBookingsResponse) in.readObject();
+        }
+    }
+
     public UpdateBookingResponse updateBooking(UpdateBookingRequest request) throws IOException, ClassNotFoundException {
         try (Socket socket = new Socket(HOST, PORT);
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -75,6 +89,16 @@ public class Client {
 
             out.writeObject(request);
             return (CompleteBookingResponse) in.readObject();
+        }
+    }
+
+    public CancelBookingResponse cancelBooking(CancelBookingRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (CancelBookingResponse) in.readObject();
         }
     }
 

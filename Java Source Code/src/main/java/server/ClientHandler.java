@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
@@ -21,6 +23,8 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.SearchBookingsRequest;
+import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
 
@@ -50,11 +54,17 @@ public class ClientHandler implements Runnable {
             } else if (requestObj instanceof GetCustomerBookingsRequest req) {
                 GetCustomerBookingsResponse response = modelManager.getCustomerBookings(req);
                 out.writeObject(response);
+            } else if (requestObj instanceof SearchBookingsRequest req) {
+                SearchBookingsResponse response = modelManager.searchBookings(req);
+                out.writeObject(response);
             } else if (requestObj instanceof UpdateBookingRequest req) {
                 UpdateBookingResponse response = modelManager.updateBooking(req);
                 out.writeObject(response);
             } else if (requestObj instanceof CompleteBookingRequest req) {
                 CompleteBookingResponse response = modelManager.completeBooking(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof CancelBookingRequest req) {
+                CancelBookingResponse response = modelManager.cancelBooking(req);
                 out.writeObject(response);
             } else if (requestObj instanceof HandleOverdueReturnsRequest req) {
                 HandleOverdueReturnsResponse response = modelManager.handleOverdueReturns(req);
