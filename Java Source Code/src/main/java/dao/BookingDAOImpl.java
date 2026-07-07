@@ -88,6 +88,28 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
+    public List<Booking> findActiveByCustomerId(int customerId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking " +
+                "WHERE customer_id = ? AND UPPER(booking_status) = 'ACTIVE' " +
+                "ORDER BY start_date DESC, booking_id DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ensureExists(conn, "customer", "customer_id", customerId, "Customer does not exist");
+            stmt.setInt(1, customerId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
     public Booking findById(int bookingId) throws SQLException {
         String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
                 "customer_id, vehicle_id, employee_id " +
@@ -98,6 +120,70 @@ public class BookingDAOImpl implements BookingDAO {
             stmt.setInt(1, bookingId);
             ResultSet rs = stmt.executeQuery();
             return rs.next() ? mapBooking(rs) : null;
+        }
+    }
+
+    @Override
+    public void updateActiveBooking(Booking booking) throws SQLException {
+        String updateBookingSql = "UPDATE booking " +
+                "SET start_date = ?, end_date = ?, booking_status = ?, vehicle_id = ?, employee_id = ? " +
+                "WHERE booking_id = ? AND UPPER(booking_status) = 'ACTIVE'";
+        String updateOldVehicleSql = "UPDATE vehicle SET current_state = 'available' WHERE vehicle_id = ?";
+        String updateNewVehicleSql = "UPDATE vehicle SET current_state = 'rented' WHERE vehicle_id = ?";
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            Booking existing = findByIdForUpdate(conn, booking.getBookingId());
+            if (existing == null) {
+                throw new SQLException("Booking cannot be found");
+            }
+            if (!"ACTIVE".equalsIgnoreCase(existing.getBookingStatus())) {
+                throw new SQLException("Only ACTIVE bookings can be updated");
+            }
+
+            ensureExists(conn, "vehicle", "vehicle_id", booking.getVehicleId(), "Vehicle does not exist");
+            ensureExists(conn, "employee", "employee_id", booking.getEmployeeId(), "Employee does not exist");
+
+            if (!isVehicleAvailableForUpdate(conn, booking, existing.getBookingId(), existing.getVehicleId())) {
+                throw new SQLException("Vehicle is not available for the selected period");
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingSql)) {
+                stmt.setTimestamp(1, Timestamp.valueOf(booking.getStartDate()));
+                stmt.setTimestamp(2, Timestamp.valueOf(booking.getEndDate()));
+                stmt.setString(3, booking.getBookingStatus());
+                stmt.setInt(4, booking.getVehicleId());
+                stmt.setInt(5, booking.getEmployeeId());
+                stmt.setInt(6, booking.getBookingId());
+                int updated = stmt.executeUpdate();
+                if (updated == 0) {
+                    throw new SQLException("Booking was changed by another employee before confirmation");
+                }
+            }
+
+            if (existing.getVehicleId() != booking.getVehicleId()) {
+                try (PreparedStatement stmt = conn.prepareStatement(updateOldVehicleSql)) {
+                    stmt.setInt(1, existing.getVehicleId());
+                    stmt.executeUpdate();
+                }
+                try (PreparedStatement stmt = conn.prepareStatement(updateNewVehicleSql)) {
+                    stmt.setInt(1, booking.getVehicleId());
+                    stmt.executeUpdate();
+                }
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
         }
     }
 
@@ -213,6 +299,51 @@ public class BookingDAOImpl implements BookingDAO {
             stmt.setInt(1, booking.getVehicleId());
             stmt.setTimestamp(2, Timestamp.valueOf(booking.getEndDate()));
             stmt.setTimestamp(3, Timestamp.valueOf(booking.getStartDate()));
+            ResultSet rs = stmt.executeQuery();
+            return !rs.next();
+        }
+    }
+
+    private Booking findByIdForUpdate(Connection conn, int bookingId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE booking_id = ? FOR UPDATE";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? mapBooking(rs) : null;
+        }
+    }
+
+    private boolean isVehicleAvailableForUpdate(Connection conn, Booking booking, int excludedBookingId, int originalVehicleId) throws SQLException {
+        if (booking.getVehicleId() != originalVehicleId) {
+            String vehicleStateSql = "SELECT current_state FROM vehicle WHERE vehicle_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(vehicleStateSql)) {
+                stmt.setInt(1, booking.getVehicleId());
+                ResultSet rs = stmt.executeQuery();
+                if (!rs.next()) {
+                    return false;
+                }
+                String state = rs.getString("current_state");
+                if (state != null && !state.equalsIgnoreCase("available")) {
+                    return false;
+                }
+            }
+        }
+
+        String overlapSql = "SELECT 1 FROM booking " +
+                "WHERE vehicle_id = ? " +
+                "AND booking_id <> ? " +
+                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
+                "AND start_date < ? " +
+                "AND end_date > ? " +
+                "LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(overlapSql)) {
+            stmt.setInt(1, booking.getVehicleId());
+            stmt.setInt(2, excludedBookingId);
+            stmt.setTimestamp(3, Timestamp.valueOf(booking.getEndDate()));
+            stmt.setTimestamp(4, Timestamp.valueOf(booking.getStartDate()));
             ResultSet rs = stmt.executeQuery();
             return !rs.next();
         }

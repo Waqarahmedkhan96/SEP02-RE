@@ -31,11 +31,13 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.UpdateBookingRequest;
+import shared.UpdateBookingResponse;
 
 public class ModelManager {
 
     public CreateCustomerResponse createCustomer(CreateCustomerRequest req) {
-        // basic validation — expand as your team defines actual rules
+        // basic validation - expand as your team defines actual rules
         if (req.getName() == null || req.getName().isBlank()) {
             return new CreateCustomerResponse(false, "Name is required", -1);
         }
@@ -96,10 +98,66 @@ public class ModelManager {
 
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
-            return new GetCustomerBookingsResponse(true, "Bookings loaded", dao.findByCustomerId(req.getCustomerId()));
+            List<Booking> bookings = req.isActiveOnly()
+                    ? dao.findActiveByCustomerId(req.getCustomerId())
+                    : dao.findByCustomerId(req.getCustomerId());
+            String message = req.isActiveOnly() ? "Active bookings loaded" : "Bookings loaded";
+            return new GetCustomerBookingsResponse(true, message, bookings);
         } catch (Exception e) {
             e.printStackTrace();
             return new GetCustomerBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public UpdateBookingResponse updateBooking(UpdateBookingRequest req) {
+        if (req.getBookingId() <= 0) {
+            return new UpdateBookingResponse(false, "Booking is required");
+        }
+        if (req.getVehicleId() <= 0) {
+            return new UpdateBookingResponse(false, "Vehicle is required");
+        }
+        if (req.getEmployeeId() <= 0) {
+            return new UpdateBookingResponse(false, "Employee is required");
+        }
+        if (req.getStartDate() == null || req.getEndDate() == null) {
+            return new UpdateBookingResponse(false, "Rental period is required");
+        }
+        if (!req.getStartDate().isBefore(req.getEndDate())) {
+            return new UpdateBookingResponse(false, "Start date must be before end date");
+        }
+
+        String status = req.getBookingStatus() == null || req.getBookingStatus().isBlank()
+                ? "ACTIVE"
+                : req.getBookingStatus().trim().toUpperCase();
+
+        if (!"ACTIVE".equals(status)) {
+            return new UpdateBookingResponse(false, "Update Booking can only keep ACTIVE bookings active");
+        }
+
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            Booking existing = dao.findById(req.getBookingId());
+            if (existing == null) {
+                return new UpdateBookingResponse(false, "Booking cannot be found");
+            }
+
+            BookingState currentState = BookingStateFactory.fromStatus(existing.getBookingStatus());
+            try {
+                currentState.update(existing);
+            } catch (IllegalStateException e) {
+                return new UpdateBookingResponse(false, e.getMessage());
+            }
+
+            Booking updatedBooking = new Booking(req.getStartDate(), req.getEndDate(), status,
+                    existing.getCustomerId(), req.getVehicleId(), req.getEmployeeId());
+            updatedBooking.setBookingId(existing.getBookingId());
+            updatedBooking.setActualReturnDate(existing.getActualReturnDate());
+
+            dao.updateActiveBooking(updatedBooking);
+            return new UpdateBookingResponse(true, "Booking updated");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new UpdateBookingResponse(false, "Database error: " + e.getMessage());
         }
     }
 
@@ -119,7 +177,7 @@ public class ModelManager {
             BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
             BookingState nextState;
             try {
-                nextState = currentState.complete(booking); // throws if transition is invalid
+                nextState = currentState.complete(booking);
             } catch (IllegalStateException e) {
                 return new CompleteBookingResponse(false, e.getMessage(), 0);
             }
@@ -150,11 +208,11 @@ public class ModelManager {
             for (Booking booking : candidates) {
                 BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
                 try {
-                    currentState.markOverdue(booking); // validates transition
+                    currentState.markOverdue(booking);
                     dao.markOverdue(booking.getBookingId());
                     markedOverdue.add(booking.getBookingId());
                 } catch (IllegalStateException ignored) {
-                    // shouldn't happen since findOverdueCandidates only returns ACTIVE bookings, but stay defensive
+                    // Defensive: findOverdueCandidates should only return ACTIVE bookings.
                 }
             }
 
@@ -167,82 +225,47 @@ public class ModelManager {
         }
     }
 
+    public GetVehiclesResponse getVehicles(GetVehiclesRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new GetVehiclesResponse(true, "Vehicles loaded", dao.getAllVehicles());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetVehiclesResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new FilterVehiclesResponse(true, "Vehicles loaded",
+                    dao.filterVehicles(req.getColor(), req.getVehicleType(), req.getStatus(), req.getMaxPrice()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new FilterVehiclesResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest req) {
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            return new CheckAvailabilityResponse(
+                    dao.getAvailableVehicles(req.getStartDateTime(), req.getEndDateTime()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CheckAvailabilityResponse(Collections.emptyList());
+        }
+    }
+
     private double calculateLateFee(BookingDAO dao, Booking booking, LocalDateTime actualReturnDate) throws Exception {
         if (!actualReturnDate.isAfter(booking.getEndDate())) {
-            return 0; // returned on time
+            return 0;
         }
 
         long minutesLate = Duration.between(booking.getEndDate(), actualReturnDate).toMinutes();
-        double hoursLate = Math.ceil(minutesLate / 60.0); // round up any partial hour
+        double hoursLate = Math.ceil(minutesLate / 60.0);
 
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
     }
-    public GetVehiclesResponse getVehicles(GetVehiclesRequest req)
-{
-    try
-    {
-        VehicleDAO dao = DAOFactory.getVehicleDAO();
-
-        return new GetVehiclesResponse(
-                true,
-                "Vehicles loaded",
-                dao.getAllVehicles());
-    }
-    catch (Exception e)
-    {
-        e.printStackTrace();
-
-        return new GetVehiclesResponse(
-                false,
-                "Database error: " + e.getMessage(),
-                Collections.emptyList());
-    }
-}
-
-public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req)
-{
-    try
-    {
-        VehicleDAO dao = DAOFactory.getVehicleDAO();
-
-        return new FilterVehiclesResponse(
-                true,
-                "Vehicles loaded",
-                dao.filterVehicles(
-                        req.getColor(),
-                        req.getVehicleType(),
-                        req.getStatus(),
-                        req.getMaxPrice()));
-    }
-    catch (Exception e)
-    {
-        e.printStackTrace();
-
-        return new FilterVehiclesResponse(
-                false,
-                "Database error: " + e.getMessage(),
-                Collections.emptyList());
-    }
-}
-
-public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest req)
-{
-    try
-    {
-        VehicleDAO dao = DAOFactory.getVehicleDAO();
-return new CheckAvailabilityResponse(
-        dao.getAvailableVehicles(
-                req.getStartDateTime(),
-                req.getEndDateTime()));
-    }
-    catch (Exception e)
-    {
-        e.printStackTrace();
-
-        return new CheckAvailabilityResponse(
-                Collections.emptyList());
-    }
-}
-
 }

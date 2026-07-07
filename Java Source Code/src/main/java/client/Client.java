@@ -21,6 +21,8 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.UpdateBookingRequest;
+import shared.UpdateBookingResponse;
 
 public class Client {
     private static final String HOST = "localhost";
@@ -56,6 +58,16 @@ public class Client {
         }
     }
 
+    public UpdateBookingResponse updateBooking(UpdateBookingRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (UpdateBookingResponse) in.readObject();
+        }
+    }
+
     public CompleteBookingResponse completeBooking(CompleteBookingRequest request) throws IOException, ClassNotFoundException {
         try (Socket socket = new Socket(HOST, PORT);
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -76,40 +88,33 @@ public class Client {
         }
     }
 
-    public GetVehiclesResponse getVehicles(GetVehiclesRequest request)
-        throws IOException, ClassNotFoundException
-{
-    try (Socket socket = new Socket(HOST, PORT);
-         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
-    {
-        out.writeObject(request);
-        return (GetVehiclesResponse) in.readObject();
-    }
-}
+    public GetVehiclesResponse getVehicles(GetVehiclesRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest request)
-        throws IOException, ClassNotFoundException
-{
-    try (Socket socket = new Socket(HOST, PORT);
-         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
-    {
-        out.writeObject(request);
-        return (FilterVehiclesResponse) in.readObject();
+            out.writeObject(request);
+            return (GetVehiclesResponse) in.readObject();
+        }
     }
-}
 
-public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest request)
-        throws IOException, ClassNotFoundException
-{
-    try (Socket socket = new Socket(HOST, PORT);
-         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-         ObjectInputStream in = new ObjectInputStream(socket.getInputStream()))
-    {
-        out.writeObject(request);
-        return (CheckAvailabilityResponse) in.readObject();
+    public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (FilterVehiclesResponse) in.readObject();
+        }
     }
-}
 
+    public CheckAvailabilityResponse checkAvailability(CheckAvailabilityRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (CheckAvailabilityResponse) in.readObject();
+        }
+    }
 }

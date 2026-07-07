@@ -14,4 +14,9 @@ public class CompletedState implements BookingState {
     public BookingState markOverdue(Booking booking) {
         throw new IllegalStateException("Cannot mark a COMPLETED booking as overdue");
     }
+
+    @Override
+    public BookingState update(Booking booking) {
+        throw new IllegalStateException("Only ACTIVE bookings can be updated");
+    }
 }

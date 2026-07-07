@@ -14,4 +14,9 @@ public class PendingState implements BookingState {
     public BookingState markOverdue(Booking booking) {
         throw new IllegalStateException("Cannot mark a PENDING booking as overdue");
     }
+
+    @Override
+    public BookingState update(Booking booking) {
+        throw new IllegalStateException("Only ACTIVE bookings can be updated");
+    }
 }

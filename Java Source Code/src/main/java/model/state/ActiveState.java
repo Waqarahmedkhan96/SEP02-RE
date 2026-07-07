@@ -14,4 +14,9 @@ public class ActiveState implements BookingState {
     public BookingState markOverdue(Booking booking) {
         return new OverdueState();
     }
+
+    @Override
+    public BookingState update(Booking booking) {
+        return this;
+    }
 }
