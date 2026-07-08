@@ -19,6 +19,8 @@ import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetCustomersRequest;
+import shared.GetCustomersResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
@@ -50,6 +52,9 @@ public class ClientHandler implements Runnable {
                 out.writeObject(response);
             } else if (requestObj instanceof CreateBookingRequest req) {
                 CreateBookingResponse response = modelManager.createBooking(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof GetCustomersRequest req) {
+                GetCustomersResponse response = modelManager.getCustomers(req);
                 out.writeObject(response);
             } else if (requestObj instanceof GetCustomerBookingsRequest req) {
                 GetCustomerBookingsResponse response = modelManager.getCustomerBookings(req);

@@ -29,6 +29,8 @@ import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetCustomersRequest;
+import shared.GetCustomersResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
@@ -92,6 +94,17 @@ public class ModelManager {
         } catch (Exception e) {
             e.printStackTrace();
             return new CreateBookingResponse(false, "Database error: " + e.getMessage(), -1);
+        }
+    }
+
+    public GetCustomersResponse getCustomers(GetCustomersRequest req) {
+        try {
+            CustomerDAO dao = DAOFactory.getCustomerDAO();
+            List<Customer> customers = dao.getAllCustomers();
+            return new GetCustomersResponse(true, "Customers loaded", customers);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetCustomersResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
         }
     }
 

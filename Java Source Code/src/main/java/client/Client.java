@@ -19,6 +19,8 @@ import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetCustomersRequest;
+import shared.GetCustomersResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
@@ -59,6 +61,16 @@ public class Client {
 
             out.writeObject(request);
             return (GetCustomerBookingsResponse) in.readObject();
+        }
+    }
+
+    public GetCustomersResponse getCustomers(GetCustomersRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (GetCustomersResponse) in.readObject();
         }
     }
 
