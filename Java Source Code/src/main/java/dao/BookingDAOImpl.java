@@ -1,6 +1,8 @@
 package dao;
 
 import model.Booking;
+import model.Vehicle;
+import model.state.VehicleStateFactory;
 import utils.DatabaseConnection;
 
 import java.sql.Connection;
@@ -19,6 +21,7 @@ public class BookingDAOImpl implements BookingDAO {
         String insertBookingSql = "INSERT INTO booking " +
                 "(start_date, end_date, actual_return_date, booking_status, customer_id, vehicle_id, employee_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING booking_id";
+        String rentVehicleSql = "UPDATE vehicle SET current_state = ? WHERE vehicle_id = ?";
 
         Connection conn = null;
         try {
@@ -50,6 +53,16 @@ public class BookingDAOImpl implements BookingDAO {
                 ResultSet rs = bookingStmt.executeQuery();
                 rs.next();
                 generatedId = rs.getInt("booking_id");
+            }
+
+            Vehicle bookedVehicle = new Vehicle();
+            bookedVehicle.setVehicleId(booking.getVehicleId());
+            bookedVehicle.setCurrentState("available");
+            bookedVehicle.markRented();
+            try (PreparedStatement stmt = conn.prepareStatement(rentVehicleSql)) {
+                stmt.setString(1, bookedVehicle.getCurrentState());
+                stmt.setInt(2, bookedVehicle.getVehicleId());
+                stmt.executeUpdate();
             }
 
             conn.commit();
@@ -128,8 +141,8 @@ public class BookingDAOImpl implements BookingDAO {
         String updateBookingSql = "UPDATE booking " +
                 "SET start_date = ?, end_date = ?, booking_status = ?, vehicle_id = ?, employee_id = ? " +
                 "WHERE booking_id = ? AND UPPER(booking_status) = 'ACTIVE'";
-        String updateOldVehicleSql = "UPDATE vehicle SET current_state = 'available' WHERE vehicle_id = ?";
-        String updateNewVehicleSql = "UPDATE vehicle SET current_state = 'rented' WHERE vehicle_id = ?";
+        String updateOldVehicleSql = "UPDATE vehicle SET current_state = ? WHERE vehicle_id = ?";
+        String updateNewVehicleSql = "UPDATE vehicle SET current_state = ? WHERE vehicle_id = ?";
 
         Connection conn = null;
         try {
@@ -165,12 +178,23 @@ public class BookingDAOImpl implements BookingDAO {
             }
 
             if (existing.getVehicleId() != booking.getVehicleId()) {
+                Vehicle oldVehicle = new Vehicle();
+                oldVehicle.setVehicleId(existing.getVehicleId());
+                oldVehicle.setCurrentState("rented");
+                oldVehicle.markAvailable();
                 try (PreparedStatement stmt = conn.prepareStatement(updateOldVehicleSql)) {
-                    stmt.setInt(1, existing.getVehicleId());
+                    stmt.setString(1, oldVehicle.getCurrentState());
+                    stmt.setInt(2, oldVehicle.getVehicleId());
                     stmt.executeUpdate();
                 }
+
+                Vehicle newVehicle = new Vehicle();
+                newVehicle.setVehicleId(booking.getVehicleId());
+                newVehicle.setCurrentState("available");
+                newVehicle.markRented();
                 try (PreparedStatement stmt = conn.prepareStatement(updateNewVehicleSql)) {
-                    stmt.setInt(1, booking.getVehicleId());
+                    stmt.setString(1, newVehicle.getCurrentState());
+                    stmt.setInt(2, newVehicle.getVehicleId());
                     stmt.executeUpdate();
                 }
             }
@@ -221,7 +245,7 @@ public class BookingDAOImpl implements BookingDAO {
     @Override
     public void completeBooking(int bookingId, int vehicleId, LocalDateTime actualReturnDate, String newStatus) throws SQLException {
         String updateBookingSql = "UPDATE booking SET booking_status = ?, actual_return_date = ? WHERE booking_id = ?";
-        String updateVehicleSql = "UPDATE vehicle SET current_state = 'available' WHERE vehicle_id = ?";
+        String updateVehicleSql = "UPDATE vehicle SET current_state = ? WHERE vehicle_id = ?";
 
         Connection conn = null;
         try {
@@ -235,8 +259,13 @@ public class BookingDAOImpl implements BookingDAO {
                 stmt.executeUpdate();
             }
 
+            Vehicle vehicle = new Vehicle();
+            vehicle.setVehicleId(vehicleId);
+            vehicle.setCurrentState("rented");
+            vehicle.markAvailable();
             try (PreparedStatement stmt = conn.prepareStatement(updateVehicleSql)) {
-                stmt.setInt(1, vehicleId);
+                stmt.setString(1, vehicle.getCurrentState());
+                stmt.setInt(2, vehicle.getVehicleId());
                 stmt.executeUpdate();
             }
 
@@ -283,8 +312,7 @@ public class BookingDAOImpl implements BookingDAO {
             if (!rs.next()) {
                 return false;
             }
-            String state = rs.getString("current_state");
-            if (state != null && !state.equalsIgnoreCase("available")) {
+            if (!VehicleStateFactory.fromState(rs.getString("current_state")).canBeBooked()) {
                 return false;
             }
         }
@@ -325,8 +353,7 @@ public class BookingDAOImpl implements BookingDAO {
                 if (!rs.next()) {
                     return false;
                 }
-                String state = rs.getString("current_state");
-                if (state != null && !state.equalsIgnoreCase("available")) {
+                if (!VehicleStateFactory.fromState(rs.getString("current_state")).canBeBooked()) {
                     return false;
                 }
             }

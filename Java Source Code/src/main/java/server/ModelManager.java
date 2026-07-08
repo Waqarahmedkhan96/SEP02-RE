@@ -16,6 +16,7 @@ import model.DrivingLicense;
 import model.Vehicle;
 import model.state.BookingState;
 import model.state.BookingStateFactory;
+import model.state.VehicleStateFactory;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
@@ -380,7 +381,12 @@ public class ModelManager {
     }
 
     private boolean isValidVehicleState(String state) {
-        return "available".equals(state) || "rented".equals(state) || "maintenance".equals(state);
+        try {
+            VehicleStateFactory.fromState(state);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private boolean isBlank(String value) {
