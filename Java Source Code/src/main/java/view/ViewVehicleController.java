@@ -1,17 +1,24 @@
 package view;
 
+import java.io.IOException;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import model.Vehicle;
-import viewmodel.VehicleViewModel;
+import viewmodel.ViewVehicleViewModel;
 
-public class VehicleViewController {
+
+public class ViewVehicleController {
 
     @FXML private TextField colorField;
     @FXML private TextField vehicleTypeField;
@@ -35,7 +42,7 @@ public class VehicleViewController {
 
     @FXML private Label statusLabel;
 
-    private final VehicleViewModel viewModel = new VehicleViewModel();
+    private final ViewVehicleViewModel viewModel = new ViewVehicleViewModel();
 
     @FXML
     public void initialize() {
@@ -47,7 +54,7 @@ public class VehicleViewController {
 
         viewModel.startDate.bind(startDateField.textProperty());
         viewModel.endDate.bind(endDateField.textProperty());
-
+       
         vehicleIdColumn.setCellValueFactory(data ->
                 new SimpleIntegerProperty(data.getValue().getVehicleId()));
 
@@ -77,6 +84,8 @@ public class VehicleViewController {
 
         vehicleTable.setItems(viewModel.vehicles);
 
+        vehicleTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
         statusLabel.textProperty().bind(viewModel.statusMessage);
 
         viewModel.loadVehicles();
@@ -104,4 +113,23 @@ public class VehicleViewController {
             return 0;
         }
     }
+    
+    @FXML
+    private void handleBack() throws IOException {
+
+    Stage stage = (Stage) vehicleTable.getScene().getWindow();
+
+    double width = stage.getWidth();
+    double height = stage.getHeight();
+
+    FXMLLoader loader =
+    new FXMLLoader(getClass().getResource("VehicleManagement.fxml"));
+
+    Parent root = loader.load();
+
+    stage.setScene(new Scene(root));
+    stage.setWidth(width);
+    stage.setHeight(height);
+   }
+
 }

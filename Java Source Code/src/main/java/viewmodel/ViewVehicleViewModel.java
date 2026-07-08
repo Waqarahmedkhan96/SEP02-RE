@@ -1,5 +1,7 @@
 package viewmodel;
 
+import java.time.LocalDateTime;
+
 import client.Client;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -8,15 +10,14 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Vehicle;
+import shared.CheckAvailabilityRequest;
+import shared.CheckAvailabilityResponse;
 import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
-import java.time.LocalDateTime;
-import shared.CheckAvailabilityRequest;
-import shared.CheckAvailabilityResponse;
 
-public class VehicleViewModel {
+public class ViewVehicleViewModel {
 
     private final Client client = new Client();
 
