@@ -13,6 +13,7 @@ import dao.VehicleDAO;
 import model.Booking;
 import model.Customer;
 import model.DrivingLicense;
+import model.Vehicle;
 import model.state.BookingState;
 import model.state.BookingStateFactory;
 import shared.CheckAvailabilityRequest;
@@ -23,6 +24,8 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.CreateVehicleRequest;
+import shared.CreateVehicleResponse;
 import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
@@ -31,8 +34,12 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.RemoveVehicleRequest;
+import shared.RemoveVehicleResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.UpdateVehicleRequest;
+import shared.UpdateVehicleResponse;
 
 public class ModelManager {
 
@@ -235,6 +242,55 @@ public class ModelManager {
         }
     }
 
+    public CreateVehicleResponse createVehicle(CreateVehicleRequest req) {
+        Vehicle vehicle = req.getVehicle();
+        String validationError = validateVehicle(vehicle, false);
+        if (validationError != null) {
+            return new CreateVehicleResponse(false, validationError, -1);
+        }
+
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            int newId = dao.create(vehicle);
+            return new CreateVehicleResponse(true, "Vehicle created", newId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CreateVehicleResponse(false, "Database error: " + e.getMessage(), -1);
+        }
+    }
+
+    public UpdateVehicleResponse updateVehicle(UpdateVehicleRequest req) {
+        Vehicle vehicle = req.getVehicle();
+        String validationError = validateVehicle(vehicle, true);
+        if (validationError != null) {
+            return new UpdateVehicleResponse(false, validationError);
+        }
+
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            dao.update(vehicle);
+            return new UpdateVehicleResponse(true, "Vehicle updated");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new UpdateVehicleResponse(false, "Database error: " + e.getMessage());
+        }
+    }
+
+    public RemoveVehicleResponse removeVehicle(RemoveVehicleRequest req) {
+        if (req.getVehicleId() <= 0) {
+            return new RemoveVehicleResponse(false, "Vehicle is required");
+        }
+
+        try {
+            VehicleDAO dao = DAOFactory.getVehicleDAO();
+            dao.remove(req.getVehicleId());
+            return new RemoveVehicleResponse(true, "Vehicle removed");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new RemoveVehicleResponse(false, "Database error: " + e.getMessage());
+        }
+    }
+
     public FilterVehiclesResponse filterVehicles(FilterVehiclesRequest req) {
         try {
             VehicleDAO dao = DAOFactory.getVehicleDAO();
@@ -267,5 +323,74 @@ public class ModelManager {
 
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
+    }
+
+    private String validateVehicle(Vehicle vehicle, boolean requireId) {
+        if (vehicle == null) {
+            return "Vehicle information is required";
+        }
+        if (requireId && vehicle.getVehicleId() <= 0) {
+            return "Vehicle is required";
+        }
+
+        normalizeVehicle(vehicle);
+
+        if (isBlank(vehicle.getModel())) {
+            return "Model is required";
+        }
+        if (isBlank(vehicle.getVehicleType())) {
+            return "Vehicle type is required";
+        }
+        if (isBlank(vehicle.getPlateNo())) {
+            return "Plate number is required";
+        }
+        if (vehicle.getPriceHour() < 0) {
+            return "Price per hour cannot be negative";
+        }
+        if (vehicle.getDeposit() < 0) {
+            return "Deposit cannot be negative";
+        }
+        if (vehicle.getNoOfTire() <= 0) {
+            return "Number of tires must be greater than zero";
+        }
+        if (vehicle.getLateFee() < 0) {
+            return "Late fee cannot be negative";
+        }
+        if (vehicle.getNoOfSeats() <= 0) {
+            return "Number of seats must be greater than zero";
+        }
+        if (!isValidVehicleState(vehicle.getCurrentState())) {
+            return "Status must be available, rented, or maintenance";
+        }
+
+        return null;
+    }
+
+    private void normalizeVehicle(Vehicle vehicle) {
+        vehicle.setModel(trimToNull(vehicle.getModel()));
+        vehicle.setVehicleType(trimToNull(vehicle.getVehicleType()));
+        vehicle.setColor(trimToNull(vehicle.getColor()));
+        vehicle.setEngine(trimToNull(vehicle.getEngine()));
+        vehicle.setPlateNo(trimToNull(vehicle.getPlateNo()));
+        vehicle.setRequiredLicense(trimToNull(vehicle.getRequiredLicense()));
+        vehicle.setCondition(trimToNull(vehicle.getCondition()));
+
+        String currentState = trimToNull(vehicle.getCurrentState());
+        vehicle.setCurrentState(currentState == null ? "available" : currentState.toLowerCase());
+    }
+
+    private boolean isValidVehicleState(String state) {
+        return "available".equals(state) || "rented".equals(state) || "maintenance".equals(state);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private String trimToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }

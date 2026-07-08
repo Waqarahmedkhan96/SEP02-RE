@@ -13,6 +13,8 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.CreateVehicleRequest;
+import shared.CreateVehicleResponse;
 import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
@@ -21,8 +23,12 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.RemoveVehicleRequest;
+import shared.RemoveVehicleResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.UpdateVehicleRequest;
+import shared.UpdateVehicleResponse;
 
 public class ClientHandler implements Runnable {
 
@@ -58,6 +64,15 @@ public class ClientHandler implements Runnable {
                 out.writeObject(response);
             } else if (requestObj instanceof HandleOverdueReturnsRequest req) {
                 HandleOverdueReturnsResponse response = modelManager.handleOverdueReturns(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof CreateVehicleRequest req) {
+                CreateVehicleResponse response = modelManager.createVehicle(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof UpdateVehicleRequest req) {
+                UpdateVehicleResponse response = modelManager.updateVehicle(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof RemoveVehicleRequest req) {
+                RemoveVehicleResponse response = modelManager.removeVehicle(req);
                 out.writeObject(response);
             } else if (requestObj instanceof GetVehiclesRequest req) {
               GetVehiclesResponse response = modelManager.getVehicles(req);
