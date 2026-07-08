@@ -1,25 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="view.CustomerViewController"
-      style="-fx-padding: 20;">
-    <TextField fx:id="nameField" promptText="Name"/>
-    <TextField fx:id="phoneField" promptText="Phone"/>
-    <TextField fx:id="emailField" promptText="Email"/>
-    <TextField fx:id="cprField" promptText="CPR"/>
-    <TextField fx:id="passportField" promptText="Passport No"/>
-    <TextField fx:id="licenseField" promptText="License No"/>
-    <HBox spacing="10">
-        <CheckBox fx:id="catA" text="A"/>
-        <CheckBox fx:id="catB" text="B"/>
-        <CheckBox fx:id="catC" text="C"/>
-        <CheckBox fx:id="catD" text="D"/>
-    </HBox>
-    <Button text="Create Customer" onAction="#handleSubmit"/>
-    <Label fx:id="statusLabel"/>
-</VBox>
+<AnchorPane style="-fx-background-color: #F0F0F0;" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="view.CustomerViewController">
+
+    <!-- Back Button -->
+    <Button text="Back" onAction="#handleBack"
+            style="-fx-background-color: #1A1A1A; -fx-text-fill: #F5C400; -fx-font-weight: bold; -fx-background-radius: 6;"
+            AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20"/>
+
+    <!-- Title -->
+    <VBox AnchorPane.topAnchor="10" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" alignment="CENTER">
+        <Label text="Register Customer"
+               style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
+        <Label text="Store customer information before creating bookings"
+               style="-fx-font-size: 13px; -fx-text-fill: #666666;"/>
+    </VBox>
+
+    <!-- Form -->
+    <VBox spacing="16" AnchorPane.topAnchor="100" AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60">
+
+        <!-- Row 1: Full name, Email, Phone -->
+        <GridPane hgap="16">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="33.33"/>
+                <ColumnConstraints percentWidth="33.33"/>
+                <ColumnConstraints percentWidth="33.33"/>
+            </columnConstraints>
+            <VBox GridPane.columnIndex="0">
+                <Label text="Full name *"/>
+                <TextField fx:id="nameField" promptText="Enter customer name"/>
+            </VBox>
+            <VBox GridPane.columnIndex="1">
+                <Label text="Email *"/>
+                <TextField fx:id="emailField" promptText="name@email.com"/>
+            </VBox>
+            <VBox GridPane.columnIndex="2">
+                <Label text="Phone"/>
+                <TextField fx:id="phoneField" promptText="+45"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Row 2: CPR, Passport, Driving licence -->
+        <GridPane hgap="16">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="33.33"/>
+                <ColumnConstraints percentWidth="33.33"/>
+                <ColumnConstraints percentWidth="33.33"/>
+            </columnConstraints>
+            <VBox GridPane.columnIndex="0">
+                <Label text="CPR number"/>
+                <TextField fx:id="cprField" promptText="or passport required"/>
+            </VBox>
+            <VBox GridPane.columnIndex="1">
+                <Label text="Passport number"/>
+                <TextField fx:id="passportField" promptText="or CPR required"/>
+            </VBox>
+            <VBox GridPane.columnIndex="2">
+                <Label text="Driving licence *"/>
+                <TextField fx:id="licenseField" promptText="Licence number"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Row 3: Address, Notes -->
+        <GridPane hgap="16">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="55"/>
+                <ColumnConstraints percentWidth="45"/>
+            </columnConstraints>
+            <VBox GridPane.columnIndex="0">
+                <Label text="Address"/>
+                <TextField promptText="Street, city, postal code" prefWidth="400"/>
+            </VBox>
+            <VBox GridPane.columnIndex="1">
+                <Label text="Notes"/>
+                <TextField promptText="Optional"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Validation info box -->
+        <VBox style="-fx-border-color: #CCCCCC; -fx-border-radius: 6; -fx-background-color: white; -fx-background-radius: 6; -fx-padding: 16;">
+            <Label text="Validation rules: required fields, unique customer, CPR/passport, email and driving licence."
+                   wrapText="true"/>
+        </VBox>
+
+        <!-- Bottom buttons -->
+        <HBox spacing="12" alignment="BOTTOM_RIGHT">
+            <Button text="Clear" onAction="#handleClear"
+                    style="-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 20;"/>
+            <Button text="Register Customer" onAction="#handleSubmit"
+                    style="-fx-background-color: #1A1A1A; -fx-text-fill: #F5C400; -fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 8 20;"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

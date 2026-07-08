@@ -24,6 +24,8 @@ import shared.SearchBookingsRequest;
 import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.CompleteBookingRequest;
+import shared.CompleteBookingResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -232,6 +234,22 @@ public class BookingViewModel {
         } catch (Exception e) {
             customerBookings.clear();
             statusMessage.set("Connection error: " + e.getMessage());
+        }
+    }
+
+    public boolean completeBooking(int bookingId) {
+        try {
+            CompleteBookingResponse res = client.completeBooking(new CompleteBookingRequest(bookingId));
+            if (res.isSuccess()) {
+                statusMessage.set(res.getMessage());
+                return true;
+            } else {
+                statusMessage.set("Failed: " + res.getMessage());
+                return false;
+            }
+        } catch (Exception e) {
+            statusMessage.set("Connection error: " + e.getMessage());
+            return false;
         }
     }
 
