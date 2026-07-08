@@ -8,7 +8,7 @@ public class DatabaseConnection {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/easyride";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "Najra7054";
+    private static final String PASSWORD = "Admin02";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
