@@ -86,25 +86,30 @@ public class ViewVehicleViewModel {
 
     }
 
-  public void checkAvailability() {
+public void checkAvailability() {
 
     try {
+
 
         LocalDateTime start = LocalDateTime.parse(startDate.get());
         LocalDateTime end = LocalDateTime.parse(endDate.get());
 
+       
+
         CheckAvailabilityResponse response =
                 client.checkAvailability(
                         new CheckAvailabilityRequest(start, end));
+
+                        System.out.println("Vehicles returned = "
+        + response.getAvailableVehicles().size());
 
         vehicles.setAll(response.getAvailableVehicles());
 
         statusMessage.set(response.getAvailableVehicles().size()
                 + " vehicle(s) available.");
 
-    }
-    catch (Exception e)
-    {
+    } catch (Exception e) {
+        e.printStackTrace();   
         vehicles.clear();
         statusMessage.set(e.getMessage());
     }

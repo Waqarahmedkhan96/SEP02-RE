@@ -125,12 +125,17 @@ public class VehicleDAOImpl implements VehicleDAO {
     @Override
     public List<Vehicle> filterVehicles(String color, String vehicleType, String status, double maxPrice)
     {
+        System.out.println("Color: " + color);
+        System.out.println("Type: " + vehicleType);
+        System.out.println("Status: " + status);
+        System.out.println("Max Price: " + maxPrice);
+
         String sql =
-                "SELECT * FROM vehicle " +
-                "WHERE color = ? " +
-                "AND vehicle_type = ? " +
-                "AND current_state = ? " +
-                "AND price_hour <= ?";
+        "SELECT * FROM vehicle " +
+        "WHERE (? = '' OR color = ?) " +
+        "AND (? = '' OR vehicle_type = ?) " +
+        "AND (? = '' OR current_state = ?) " +
+        "AND (? <= 0 OR price_hour <= ?)";
 
         List<Vehicle> vehicles = new ArrayList<>();
 
@@ -138,10 +143,17 @@ public class VehicleDAOImpl implements VehicleDAO {
              PreparedStatement stmt = conn.prepareStatement(sql))
         {
 
-            stmt.setString(1, color);
-            stmt.setString(2, vehicleType);
-            stmt.setString(3, status);
-            stmt.setDouble(4, maxPrice);
+           stmt.setString(1, color);
+           stmt.setString(2, color);
+
+           stmt.setString(3, vehicleType);
+           stmt.setString(4, vehicleType);
+
+           stmt.setString(5, status);
+           stmt.setString(6, status);
+
+           stmt.setDouble(7, maxPrice);
+           stmt.setDouble(8, maxPrice);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -222,32 +234,16 @@ public class VehicleDAOImpl implements VehicleDAO {
     @Override
 public List<Vehicle> getAvailableVehicles(LocalDateTime startDate, LocalDateTime endDate)
 {
-    String sql =
-            "SELECT v.vehicle_id, v.model, v.vehicle_type, v.color, v.engine, v.plate_no, " +
-            "v.price_hour, v.deposit, v.no_of_tire, v.late_fee, v.required_license, " +
-            "v.condition, v.no_of_seats, " +
-            "CASE " +
-            "  WHEN LOWER(v.current_state) <> 'available' THEN v.current_state " +
-            "  WHEN EXISTS (" +
-            "    SELECT 1 FROM booking b " +
-            "    WHERE b.vehicle_id = v.vehicle_id " +
-            "    AND UPPER(b.booking_status) NOT IN ('COMPLETED', 'CANCELLED') " +
-            "    AND b.start_date < ? " +
-            "    AND b.end_date > ? " +
-            "    AND b.start_date <= ? " +
-            "    AND b.end_date > ? " +
-            "  ) THEN 'rented' " +
-            "  WHEN EXISTS (" +
-            "    SELECT 1 FROM booking b " +
-            "    WHERE b.vehicle_id = v.vehicle_id " +
-            "    AND UPPER(b.booking_status) NOT IN ('COMPLETED', 'CANCELLED') " +
-            "    AND b.start_date < ? " +
-            "    AND b.end_date > ? " +
-            "  ) THEN 'reserved' " +
-            "  ELSE 'available' " +
-            "END AS current_state " +
-            "FROM vehicle v " +
-            "ORDER BY v.vehicle_id";
+   String sql =
+    "SELECT * FROM vehicle v " +
+    "WHERE LOWER(v.current_state) = 'available' " +
+    "AND NOT EXISTS (" +
+    "   SELECT 1 FROM booking b " +
+    "   WHERE b.vehicle_id = v.vehicle_id " +
+    "   AND UPPER(b.booking_status) IN ('ACTIVE', 'PENDING') " +
+    "   AND b.start_date < ? " +
+    "   AND b.end_date > ?" +
+    ")";
 
     List<Vehicle> vehicles = new ArrayList<>();
 
@@ -255,15 +251,10 @@ public List<Vehicle> getAvailableVehicles(LocalDateTime startDate, LocalDateTime
          PreparedStatement stmt = conn.prepareStatement(sql))
     {
 
-        LocalDateTime now = LocalDateTime.now();
         stmt.setTimestamp(1, Timestamp.valueOf(endDate));
         stmt.setTimestamp(2, Timestamp.valueOf(startDate));
-        stmt.setTimestamp(3, Timestamp.valueOf(now));
-        stmt.setTimestamp(4, Timestamp.valueOf(now));
-        stmt.setTimestamp(5, Timestamp.valueOf(endDate));
-        stmt.setTimestamp(6, Timestamp.valueOf(startDate));
-
-        ResultSet rs = stmt.executeQuery();
+       
+       ResultSet rs = stmt.executeQuery();
 
         while (rs.next())
         {
