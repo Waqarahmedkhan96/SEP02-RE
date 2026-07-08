@@ -1,5 +1,8 @@
 package model;
 
+import model.state.VehicleState;
+import model.state.VehicleStateFactory;
+
 import java.io.Serializable;
 
 public class Vehicle implements Serializable {
@@ -63,4 +66,20 @@ public class Vehicle implements Serializable {
 
     public String getCurrentState() { return currentState; }
     public void setCurrentState(String currentState) { this.currentState = currentState; }
+
+    public VehicleState getState() {
+        return VehicleStateFactory.fromState(currentState);
+    }
+
+    public boolean isAvailableForBooking() {
+        return getState().canBeBooked();
+    }
+
+    public void markRented() {
+        currentState = getState().rent(this).getStateName();
+    }
+
+    public void markAvailable() {
+        currentState = getState().release(this).getStateName();
+    }
 }
