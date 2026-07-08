@@ -57,6 +57,72 @@ public class VehicleDAOImpl implements VehicleDAO {
     }
 
     @Override
+    public int create(Vehicle vehicle) throws SQLException {
+        String sql = "INSERT INTO vehicle " +
+                "(model, vehicle_type, color, engine, plate_no, price_hour, deposit, no_of_tire, " +
+                "late_fee, required_license, condition, no_of_seats, current_state) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING vehicle_id";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            setVehicleFields(stmt, vehicle);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("vehicle_id");
+            }
+
+            throw new SQLException("Vehicle could not be created");
+        }
+    }
+
+    @Override
+    public void update(Vehicle vehicle) throws SQLException {
+        String sql = "UPDATE vehicle SET " +
+                "model = ?, vehicle_type = ?, color = ?, engine = ?, plate_no = ?, price_hour = ?, " +
+                "deposit = ?, no_of_tire = ?, late_fee = ?, required_license = ?, condition = ?, " +
+                "no_of_seats = ?, current_state = ? " +
+                "WHERE vehicle_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            setVehicleFields(stmt, vehicle);
+            stmt.setInt(14, vehicle.getVehicleId());
+
+            int updatedRows = stmt.executeUpdate();
+            if (updatedRows == 0) {
+                throw new SQLException("Vehicle cannot be found");
+            }
+        }
+    }
+
+    @Override
+    public void remove(int vehicleId) throws SQLException {
+        String bookingSql = "SELECT 1 FROM booking WHERE vehicle_id = ? LIMIT 1";
+        String deleteSql = "DELETE FROM vehicle WHERE vehicle_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            try (PreparedStatement bookingStmt = conn.prepareStatement(bookingSql)) {
+                bookingStmt.setInt(1, vehicleId);
+                ResultSet rs = bookingStmt.executeQuery();
+                if (rs.next()) {
+                    throw new SQLException("Vehicle cannot be removed because it has bookings");
+                }
+            }
+
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                deleteStmt.setInt(1, vehicleId);
+                int removedRows = deleteStmt.executeUpdate();
+                if (removedRows == 0) {
+                    throw new SQLException("Vehicle cannot be found");
+                }
+            }
+        }
+    }
+
+    @Override
     public List<Vehicle> filterVehicles(String color, String vehicleType, String status, double maxPrice)
     {
         String sql =
@@ -74,8 +140,8 @@ public class VehicleDAOImpl implements VehicleDAO {
 
             stmt.setString(1, color);
             stmt.setString(2, vehicleType);
-            stmt.setString(2, status);
-            stmt.setDouble(3, maxPrice);
+            stmt.setString(3, status);
+            stmt.setDouble(4, maxPrice);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -207,4 +273,20 @@ public List<Vehicle> getAvailableVehicles(LocalDateTime startDate, LocalDateTime
 
     return vehicles;
 }
+
+    private void setVehicleFields(PreparedStatement stmt, Vehicle vehicle) throws SQLException {
+        stmt.setString(1, vehicle.getModel());
+        stmt.setString(2, vehicle.getVehicleType());
+        stmt.setString(3, vehicle.getColor());
+        stmt.setString(4, vehicle.getEngine());
+        stmt.setString(5, vehicle.getPlateNo());
+        stmt.setDouble(6, vehicle.getPriceHour());
+        stmt.setDouble(7, vehicle.getDeposit());
+        stmt.setInt(8, vehicle.getNoOfTire());
+        stmt.setDouble(9, vehicle.getLateFee());
+        stmt.setString(10, vehicle.getRequiredLicense());
+        stmt.setString(11, vehicle.getCondition());
+        stmt.setInt(12, vehicle.getNoOfSeats());
+        stmt.setString(13, vehicle.getCurrentState());
+    }
 }

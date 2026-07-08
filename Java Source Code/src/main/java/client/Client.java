@@ -13,6 +13,8 @@ import shared.CreateBookingRequest;
 import shared.CreateBookingResponse;
 import shared.CreateCustomerRequest;
 import shared.CreateCustomerResponse;
+import shared.CreateVehicleRequest;
+import shared.CreateVehicleResponse;
 import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
@@ -21,8 +23,12 @@ import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
+import shared.RemoveVehicleRequest;
+import shared.RemoveVehicleResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.UpdateVehicleRequest;
+import shared.UpdateVehicleResponse;
 
 public class Client {
     private static final String HOST = "localhost";
@@ -95,6 +101,36 @@ public class Client {
 
             out.writeObject(request);
             return (GetVehiclesResponse) in.readObject();
+        }
+    }
+
+    public CreateVehicleResponse createVehicle(CreateVehicleRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (CreateVehicleResponse) in.readObject();
+        }
+    }
+
+    public UpdateVehicleResponse updateVehicle(UpdateVehicleRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (UpdateVehicleResponse) in.readObject();
+        }
+    }
+
+    public RemoveVehicleResponse removeVehicle(RemoveVehicleRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (RemoveVehicleResponse) in.readObject();
         }
     }
 

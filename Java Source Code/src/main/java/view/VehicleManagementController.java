@@ -15,22 +15,55 @@ public class VehicleManagementController {
     private VBox menuPage;
 
     @FXML
-    private void showAddVehicle() {
+    private void showAddVehicle() throws IOException {
+        showManageVehicle("add");
+    }
 
-        // teammate will implement
+    @FXML
+    private void showUpdateVehicle() throws IOException {
+        showManageVehicle("update");
+    }
 
+    @FXML
+    private void showRemoveVehicle() throws IOException {
+        showManageVehicle("remove");
     }
 
    @FXML
    private void showViewVehicle() throws IOException {
+    showVehicleScreen("ViewVehicle.fxml");
+  }
 
+  private void showManageVehicle(String mode) throws IOException {
     Stage stage = (Stage) menuPage.getScene().getWindow();
 
     double width = stage.getWidth();
     double height = stage.getHeight();
 
     FXMLLoader loader =
-    new FXMLLoader(getClass().getResource("ViewVehicle.fxml"));
+    new FXMLLoader(getClass().getResource("ManageVehicle.fxml"));
+
+    Parent root = loader.load();
+    ManageVehicleController controller = loader.getController();
+    controller.setMode(mode);
+
+    Scene scene = new Scene(root);
+
+    stage.setScene(scene);
+    stage.setWidth(width);
+    stage.setHeight(height);
+
+    stage.centerOnScreen();
+  }
+
+  private void showVehicleScreen(String fxmlFile) throws IOException {
+    Stage stage = (Stage) menuPage.getScene().getWindow();
+
+    double width = stage.getWidth();
+    double height = stage.getHeight();
+
+    FXMLLoader loader =
+    new FXMLLoader(getClass().getResource(fxmlFile));
 
     Parent root = loader.load();
 
