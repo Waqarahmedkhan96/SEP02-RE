@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="view.VehicleViewController"
+      spacing="10"
+      prefWidth="950"
+      prefHeight="600">
+
+    <HBox spacing="10">
+
+        <TextField fx:id="colorField"
+                   promptText="Color"/>
+
+        <TextField fx:id="vehicleTypeField"
+                   promptText="Vehicle Type"/>
+
+        <TextField fx:id="statusField"
+                   promptText="Status"/>
+
+        <TextField fx:id="maxPriceField"
+                   promptText="Max Price"/>
+
+        <Button text="Filter"
+                onAction="#handleFilter"/>
+
+        <Button text="Refresh"
+                onAction="#handleRefresh"/>
+
+    </HBox>
+
+    <HBox spacing="10">
+
+        <TextField fx:id="startDateField"
+                   promptText="Start (yyyy-MM-ddTHH:mm)"/>
+
+        <TextField fx:id="endDateField"
+                   promptText="End (yyyy-MM-ddTHH:mm)"/>
+
+        <Button text="Check Availability"
+                onAction="#handleCheckAvailability"/>
+
+    </HBox>
+
+    <TableView fx:id="vehicleTable">
+
+        <columns>
+
+            <TableColumn fx:id="vehicleIdColumn"
+                         text="ID"
+                         prefWidth="60"/>
+
+            <TableColumn fx:id="modelColumn"
+                         text="Model"
+                         prefWidth="120"/>
+
+            <TableColumn fx:id="vehicleTypeColumn"
+                         text="Type"
+                         prefWidth="100"/>
+
+            <TableColumn fx:id="colorColumn"
+                         text="Color"
+                         prefWidth="100"/>
+
+            <TableColumn fx:id="engineColumn"
+                         text="Engine"
+                         prefWidth="120"/>
+
+            <TableColumn fx:id="plateColumn"
+                         text="Plate No"
+                         prefWidth="120"/>
+
+            <TableColumn fx:id="priceColumn"
+                         text="Price / Hour"
+                         prefWidth="100"/>
+
+            <TableColumn fx:id="depositColumn"
+                         text="Deposit"
+                         prefWidth="100"/>
+
+            <TableColumn fx:id="statusColumn"
+                         text="Status"
+                         prefWidth="120"/>
+
+        </columns>
+
+    </TableView>
+
+    <Label fx:id="statusLabel"/>
+
+</VBox>
