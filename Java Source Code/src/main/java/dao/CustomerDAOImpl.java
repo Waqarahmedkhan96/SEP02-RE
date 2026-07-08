@@ -5,6 +5,8 @@ import model.DrivingLicense;
 import utils.DatabaseConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerDAOImpl implements CustomerDAO {
 
@@ -58,5 +60,29 @@ public class CustomerDAOImpl implements CustomerDAO {
                 conn.close();
             }
         }
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() throws SQLException {
+        String sql = "SELECT customer_id, name, phone_no, email, cpr, passport_no, license_no " +
+                "FROM customer ORDER BY customer_id";
+
+        List<Customer> customers = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getInt("customer_id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhoneNo(rs.getString("phone_no"));
+                customer.setEmail(rs.getString("email"));
+                customer.setCpr(rs.getString("cpr"));
+                customer.setPassportNo(rs.getString("passport_no"));
+                customer.setLicenseNo(rs.getString("license_no"));
+                customers.add(customer);
+            }
+        }
+        return customers;
     }
 }

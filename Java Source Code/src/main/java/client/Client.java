@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
 import shared.CompleteBookingRequest;
@@ -19,12 +21,16 @@ import shared.FilterVehiclesRequest;
 import shared.FilterVehiclesResponse;
 import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
+import shared.GetCustomersRequest;
+import shared.GetCustomersResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
 import shared.HandleOverdueReturnsResponse;
 import shared.RemoveVehicleRequest;
 import shared.RemoveVehicleResponse;
+import shared.SearchBookingsRequest;
+import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
 import shared.UpdateVehicleRequest;
@@ -64,6 +70,26 @@ public class Client {
         }
     }
 
+    public GetCustomersResponse getCustomers(GetCustomersRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (GetCustomersResponse) in.readObject();
+        }
+    }
+
+    public SearchBookingsResponse searchBookings(SearchBookingsRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (SearchBookingsResponse) in.readObject();
+        }
+    }
+
     public UpdateBookingResponse updateBooking(UpdateBookingRequest request) throws IOException, ClassNotFoundException {
         try (Socket socket = new Socket(HOST, PORT);
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -81,6 +107,16 @@ public class Client {
 
             out.writeObject(request);
             return (CompleteBookingResponse) in.readObject();
+        }
+    }
+
+    public CancelBookingResponse cancelBooking(CancelBookingRequest request) throws IOException, ClassNotFoundException {
+        try (Socket socket = new Socket(HOST, PORT);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+            out.writeObject(request);
+            return (CancelBookingResponse) in.readObject();
         }
     }
 

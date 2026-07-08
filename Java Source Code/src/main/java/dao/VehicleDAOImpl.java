@@ -223,14 +223,31 @@ public class VehicleDAOImpl implements VehicleDAO {
 public List<Vehicle> getAvailableVehicles(LocalDateTime startDate, LocalDateTime endDate)
 {
     String sql =
-            "SELECT * FROM vehicle v " +
-            "WHERE current_state='available' " +
-            "AND NOT EXISTS (" +
-            "SELECT 1 FROM booking b " +
-            "WHERE b.vehicle_id=v.vehicle_id " +
-            "AND UPPER(b.booking_status) NOT IN ('COMPLETED','CANCELLED') " +
-            "AND b.start_date < ? " +
-            "AND b.end_date > ?)";
+            "SELECT v.vehicle_id, v.model, v.vehicle_type, v.color, v.engine, v.plate_no, " +
+            "v.price_hour, v.deposit, v.no_of_tire, v.late_fee, v.required_license, " +
+            "v.condition, v.no_of_seats, " +
+            "CASE " +
+            "  WHEN LOWER(v.current_state) <> 'available' THEN v.current_state " +
+            "  WHEN EXISTS (" +
+            "    SELECT 1 FROM booking b " +
+            "    WHERE b.vehicle_id = v.vehicle_id " +
+            "    AND UPPER(b.booking_status) NOT IN ('COMPLETED', 'CANCELLED') " +
+            "    AND b.start_date < ? " +
+            "    AND b.end_date > ? " +
+            "    AND b.start_date <= ? " +
+            "    AND b.end_date > ? " +
+            "  ) THEN 'rented' " +
+            "  WHEN EXISTS (" +
+            "    SELECT 1 FROM booking b " +
+            "    WHERE b.vehicle_id = v.vehicle_id " +
+            "    AND UPPER(b.booking_status) NOT IN ('COMPLETED', 'CANCELLED') " +
+            "    AND b.start_date < ? " +
+            "    AND b.end_date > ? " +
+            "  ) THEN 'reserved' " +
+            "  ELSE 'available' " +
+            "END AS current_state " +
+            "FROM vehicle v " +
+            "ORDER BY v.vehicle_id";
 
     List<Vehicle> vehicles = new ArrayList<>();
 
@@ -238,8 +255,13 @@ public List<Vehicle> getAvailableVehicles(LocalDateTime startDate, LocalDateTime
          PreparedStatement stmt = conn.prepareStatement(sql))
     {
 
+        LocalDateTime now = LocalDateTime.now();
         stmt.setTimestamp(1, Timestamp.valueOf(endDate));
         stmt.setTimestamp(2, Timestamp.valueOf(startDate));
+        stmt.setTimestamp(3, Timestamp.valueOf(now));
+        stmt.setTimestamp(4, Timestamp.valueOf(now));
+        stmt.setTimestamp(5, Timestamp.valueOf(endDate));
+        stmt.setTimestamp(6, Timestamp.valueOf(startDate));
 
         ResultSet rs = stmt.executeQuery();
 

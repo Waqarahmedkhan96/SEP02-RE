@@ -1,5 +1,6 @@
 package view;
 
+import client.Client;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -7,8 +8,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import mockdata.MockBookings;
-import mockdata.MockVehicles;
+import model.Booking;
+import model.Vehicle;
+import shared.GetVehiclesRequest;
+import shared.SearchBookingsRequest;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class MainViewController {
 
@@ -23,17 +29,21 @@ public class MainViewController {
     @FXML private VBox vehiclePage;
     @FXML private VBox bookingPage;
 
+    private final Client client = new Client();
+
     @FXML
     public void initialize() {
         appRoot.addEventHandler(NavigationEvents.SHOW_DASHBOARD, event -> {
             showPage(dashboardPage, "Employee Start / Dashboard");
+            loadDashboardData();
             event.consume();
         });
         bookingPage.addEventHandler(NavigationEvents.SHOW_DASHBOARD, event -> {
             showPage(dashboardPage, "Employee Start / Dashboard");
+            loadDashboardData();
             event.consume();
         });
-        loadDashboardMockData();
+        loadDashboardData();
         addButtonAnimations(appRoot);
     }
 
@@ -65,11 +75,34 @@ public class MainViewController {
         page.setManaged(visible);
     }
 
-    private void loadDashboardMockData() {
-        activeBookingsValueLabel.setText(String.valueOf(MockBookings.countByStatus("ACTIVE")));
-        availableVehiclesValueLabel.setText(String.valueOf(MockVehicles.countAvailableVehicles()));
-        overdueReturnsValueLabel.setText(String.valueOf(MockBookings.countByStatus("OVERDUE")));
-        completedTodayValueLabel.setText(String.valueOf(MockBookings.countCompletedToday()));
+    private void loadDashboardData() {
+        try {
+            List<Booking> bookings = client.searchBookings(new SearchBookingsRequest("", false)).getBookings();
+            List<Vehicle> vehicles = client.getVehicles(new GetVehiclesRequest()).getVehicles();
+            LocalDate today = LocalDate.now();
+
+            activeBookingsValueLabel.setText(String.valueOf(countBookingsByStatus(bookings, "ACTIVE")));
+            availableVehiclesValueLabel.setText(String.valueOf(vehicles.stream()
+                    .filter(vehicle -> "available".equalsIgnoreCase(vehicle.getCurrentState()))
+                    .count()));
+            overdueReturnsValueLabel.setText(String.valueOf(countBookingsByStatus(bookings, "OVERDUE")));
+            completedTodayValueLabel.setText(String.valueOf(bookings.stream()
+                    .filter(booking -> "COMPLETED".equalsIgnoreCase(booking.getBookingStatus()))
+                    .filter(booking -> booking.getActualReturnDate() != null)
+                    .filter(booking -> today.equals(booking.getActualReturnDate().toLocalDate()))
+                    .count()));
+        } catch (Exception e) {
+            activeBookingsValueLabel.setText("0");
+            availableVehiclesValueLabel.setText("0");
+            overdueReturnsValueLabel.setText("0");
+            completedTodayValueLabel.setText("0");
+        }
+    }
+
+    private long countBookingsByStatus(List<Booking> bookings, String status) {
+        return bookings.stream()
+                .filter(booking -> status.equalsIgnoreCase(booking.getBookingStatus()))
+                .count();
     }
 
     private void addButtonAnimations(Node root) {

@@ -19,4 +19,9 @@ public class CancelledState implements BookingState {
     public BookingState update(Booking booking) {
         throw new IllegalStateException("Only ACTIVE bookings can be updated");
     }
+
+    @Override
+    public BookingState cancel(Booking booking) {
+        throw new IllegalStateException("Booking is already CANCELLED");
+    }
 }
