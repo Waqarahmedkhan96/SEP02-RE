@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+          fx:controller="view.ViewVehicleController"
+           style="-fx-background-color:#e6e6e6; -fx-padding:18;">
+
+    <VBox spacing="20"
+          style="-fx-background-color:#f7f7f7;
+                 -fx-border-color:#d5d5d5;
+                 -fx-padding:22 40 40 40;">
+
+        <!-- Back Button -->
+        <HBox alignment="CENTER_LEFT"
+               maxWidth="850">
+
+
+        <Button text="Back"
+                onAction="#handleBack"
+                prefWidth="86"
+                prefHeight="34"
+                style="-fx-background-color:#050505;
+                       -fx-text-fill:#ffe600;
+                       -fx-border-color:#ffe600;
+                       -fx-border-radius:5;
+                       -fx-background-radius:5;"/>
+
+                       </HBox>
+
+        <!-- Title -->
+        <VBox spacing="6" alignment="CENTER">
+
+            <Label text="Vehicle List"
+                   style="-fx-font-size:30px;
+                          -fx-font-weight:bold;
+                          -fx-text-fill:#2f3338;"/>
+
+            <Label text="Browse and filter available vehicles"
+                   style="-fx-font-size:15px;
+                          -fx-text-fill:#777777;"/>
+
+        </VBox>
+
+        <!-- Filters -->
+        <HBox spacing="10"
+              alignment="CENTER">
+
+            <TextField fx:id="colorField"
+                        prefWidth="120"
+                       promptText="Color"/>
+
+            <TextField fx:id="vehicleTypeField"
+                        prefWidth="120"
+                       promptText="Vehicle Type"/>
+
+            <TextField fx:id="statusField"
+                       prefWidth="120"
+                       promptText="Status"/>
+
+            <TextField fx:id="maxPriceField"
+                        prefWidth="120"
+                       promptText="Max Price"/>
+
+            <Button text="Filter"
+                    onAction="#handleFilter"
+                    prefWidth="100"
+                    style="-fx-background-color:#050505;
+                           -fx-text-fill:#ffe600;
+                           -fx-border-color:#ffe600;"/>
+
+            <Button text="Refresh"
+                    onAction="#handleRefresh"
+                    prefWidth="100"
+                    style="-fx-background-color:#050505;
+                           -fx-text-fill:#ffe600;
+                           -fx-border-color:#ffe600;"/>
+
+        </HBox>
+
+        <!-- Availability -->
+        <HBox spacing="10"
+               alignment="CENTER">
+
+            <TextField fx:id="startDateField"
+                          prefWidth="170"
+                       promptText="Start (yyyy-MM-ddTHH:mm)"/>
+
+            <TextField fx:id="endDateField"
+                      prefWidth="170"
+                       promptText="End (yyyy-MM-ddTHH:mm)"/>
+
+            <Button text="Check Availability"
+                       prefWidth="150"
+                    onAction="#handleCheckAvailability"
+                    style="-fx-background-color:#050505;
+                           -fx-text-fill:#ffe600;
+                           -fx-border-color:#ffe600;"/>
+
+        </HBox>
+
+        <!-- Vehicle Table -->
+        <TableView fx:id="vehicleTable"
+           prefWidth="850"
+           prefHeight="280">
+       
+        <columns>
+
+                <TableColumn fx:id="vehicleIdColumn"
+                             text="ID"
+                              prefWidth="55"/>
+
+                <TableColumn fx:id="modelColumn"
+                             text="Model"
+                              prefWidth="110"/>
+
+                <TableColumn fx:id="vehicleTypeColumn"
+                             text="Type"
+                             prefWidth="90" />
+
+                <TableColumn fx:id="colorColumn"
+                             text="Color"
+                                prefWidth="90"/>
+
+                <TableColumn fx:id="engineColumn"
+                             text="Engine"
+                              prefWidth="100"
+                               />
+
+                <TableColumn fx:id="plateColumn"
+                             text="Plate No"
+                             prefWidth="100"
+                              />
+
+                <TableColumn fx:id="priceColumn"
+                             text="Price / Hour"
+                             prefWidth="90"
+                            />
+
+                <TableColumn fx:id="depositColumn"
+                             text="Deposit"
+                            />
+
+                <TableColumn fx:id="statusColumn"
+                             text="Status"
+                              prefWidth="100"
+                             />
+
+            </columns>
+
+        </TableView>
+
+        <Label fx:id="statusLabel"
+               style="-fx-text-fill:#666666;"/>
+
+    </VBox>
+
+</StackPane>
