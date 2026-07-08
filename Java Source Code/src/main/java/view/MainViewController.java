@@ -3,9 +3,9 @@ package view;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
 import javafx.util.Duration;
 import mockdata.MockBookings;
 import mockdata.MockVehicles;
@@ -53,7 +53,7 @@ public class MainViewController {
     }
 
     private void showPage(VBox selectedPage, String breadcrumb) {
-        setPageVisible(dashboardPage, false);
+        setPageVisible(dashboardPage, selectedPage == dashboardPage);
         setPageVisible(customerPage, selectedPage == customerPage);
         setPageVisible(vehiclePage, selectedPage == vehiclePage);
         setPageVisible(bookingPage, selectedPage == bookingPage);
