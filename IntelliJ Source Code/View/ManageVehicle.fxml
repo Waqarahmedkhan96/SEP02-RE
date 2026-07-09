@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="view.ManageVehicleController"
+           style="-fx-background-color:#e6e6e6; -fx-padding:18;">
+
+    <VBox spacing="18"
+          alignment="TOP_CENTER"
+          style="-fx-background-color:#f7f7f7;
+                 -fx-border-color:#d5d5d5;
+                 -fx-padding:22 40 36 40;">
+
+        <HBox alignment="CENTER_LEFT"
+              maxWidth="850">
+            <Button text="Back"
+                    onAction="#handleBack"
+                    prefWidth="86"
+                    prefHeight="34"
+                    style="-fx-background-color:#050505;
+                           -fx-text-fill:#ffe600;
+                           -fx-border-color:#ffe600;
+                           -fx-border-radius:5;
+                           -fx-background-radius:5;"/>
+        </HBox>
+
+        <VBox spacing="6"
+              alignment="CENTER">
+            <Label fx:id="titleLabel"
+                   text="Manage Vehicles"
+                   style="-fx-font-size:30px;
+                          -fx-font-weight:bold;
+                          -fx-text-fill:#2f3338;"/>
+
+            <Label fx:id="subtitleLabel"
+                   text="Add, update, or remove vehicle records"
+                   style="-fx-font-size:15px;
+                          -fx-text-fill:#777777;"/>
+        </VBox>
+
+        <VBox spacing="10"
+              alignment="CENTER"
+              maxWidth="850">
+
+            <GridPane hgap="12"
+                      vgap="10"
+                      maxWidth="720">
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <TextField fx:id="modelInput"
+                           promptText="Model"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="0"/>
+
+                <TextField fx:id="vehicleTypeField"
+                           promptText="Vehicle Type"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="1"
+                           GridPane.rowIndex="0"/>
+
+                <TextField fx:id="colorField"
+                           promptText="Color"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="2"
+                           GridPane.rowIndex="0"/>
+
+                <TextField fx:id="engineField"
+                           promptText="Engine"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="0"/>
+
+                <TextField fx:id="plateField"
+                           promptText="Plate No"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="1"/>
+
+                <TextField fx:id="currentStateField"
+                           promptText="Status"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="1"
+                           GridPane.rowIndex="1"/>
+
+                <TextField fx:id="requiredLicenseField"
+                           promptText="Required License"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="2"
+                           GridPane.rowIndex="1"/>
+
+                <TextField fx:id="conditionField"
+                           promptText="Condition"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="1"/>
+
+                <TextField fx:id="priceHourField"
+                           promptText="Price / Hour"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="2"/>
+
+                <TextField fx:id="depositField"
+                           promptText="Deposit"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="1"
+                           GridPane.rowIndex="2"/>
+
+                <TextField fx:id="noOfTireField"
+                           promptText="Number of Tires"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="2"
+                           GridPane.rowIndex="2"/>
+
+                <TextField fx:id="noOfSeatsField"
+                           promptText="Number of Seats"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="2"/>
+
+                <TextField fx:id="lateFeeField"
+                           promptText="Late Fee"
+                           maxWidth="Infinity"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="3"/>
+
+                <HBox spacing="14"
+                      alignment="CENTER"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="3"
+                      GridPane.columnSpan="3">
+
+                    <Button fx:id="addVehicleButton"
+                            text="Add Vehicle"
+                            onAction="#handleAddVehicle"
+                            prefWidth="136"
+                            prefHeight="34"
+                            style="-fx-background-color:#050505;
+                                   -fx-text-fill:#ffe600;
+                                   -fx-border-color:#ffe600;
+                                   -fx-border-radius:4;
+                                   -fx-background-radius:4;"/>
+
+                    <Button fx:id="updateVehicleButton"
+                            text="Update Vehicle"
+                            onAction="#handleUpdateVehicle"
+                            prefWidth="148"
+                            prefHeight="34"
+                            style="-fx-background-color:#050505;
+                                   -fx-text-fill:#ffe600;
+                                   -fx-border-color:#ffe600;
+                                   -fx-border-radius:4;
+                                   -fx-background-radius:4;"/>
+
+                    <Button fx:id="removeVehicleButton"
+                            text="Remove Vehicle"
+                            onAction="#handleRemoveVehicle"
+                            prefWidth="148"
+                            prefHeight="34"
+                            style="-fx-background-color:#050505;
+                                   -fx-text-fill:#ffe600;
+                                   -fx-border-color:#ffe600;
+                                   -fx-border-radius:4;
+                                   -fx-background-radius:4;"/>
+                </HBox>
+            </GridPane>
+        </VBox>
+
+        <TableView fx:id="vehicleTable"
+                   prefWidth="850"
+                   prefHeight="250">
+            <columns>
+                <TableColumn fx:id="vehicleIdColumn"
+                             text="ID"
+                             prefWidth="70"/>
+                <TableColumn fx:id="modelColumn"
+                             text="Model"
+                             prefWidth="210"/>
+                <TableColumn fx:id="vehicleTypeColumn"
+                             text="Type"
+                             prefWidth="160"/>
+                <TableColumn fx:id="colorColumn"
+                             text="Color"
+                             prefWidth="140"/>
+                <TableColumn fx:id="plateColumn"
+                             text="Plate No"
+                             prefWidth="150"/>
+                <TableColumn fx:id="statusColumn"
+                             text="Status"
+                             prefWidth="150"/>
+            </columns>
+        </TableView>
+
+        <Label fx:id="statusLabel"
+               maxWidth="850"
+               style="-fx-text-fill:#666666;"/>
+    </VBox>
+</StackPane>

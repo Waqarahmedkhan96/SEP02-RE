@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="bookingRoot" xmlns:fx="http://javafx.com/fxml" fx:controller="view.BookingViewController"
+           style="-fx-background-color: #e6e6e6; -fx-padding: 18;">
+    <VBox fx:id="menuPage">
+        <fx:include source="BookingMenuView.fxml"/>
+    </VBox>
+    <VBox fx:id="createPage" visible="false" managed="false">
+        <fx:include source="CreateBookingView.fxml"/>
+    </VBox>
+    <VBox fx:id="updatePage" visible="false" managed="false">
+        <fx:include source="UpdateBookingView.fxml"/>
+    </VBox>
+    <VBox fx:id="cancelPage" visible="false" managed="false">
+        <fx:include source="CancelBookingView.fxml"/>
+    </VBox>
+    <VBox fx:id="completePage" visible="false" managed="false">
+        <fx:include source="CompleteBookingView.fxml"/>
+    </VBox>
+    <VBox fx:id="historyPage" visible="false" managed="false">
+        <fx:include source="BookingHistoryView.fxml"/>
+    </VBox>
+</StackPane>
