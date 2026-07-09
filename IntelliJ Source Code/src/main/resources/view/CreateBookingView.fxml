@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="createRoot" spacing="24" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="view.CreateBookingController"
+      style="-fx-background-color: #f7f7f7; -fx-border-color: #d5d5d5; -fx-padding: 22 54 42 54;">
+    <Button text="Back" onAction="#showBookingMenu"
+            style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;"
+            prefWidth="86" prefHeight="34"/>
+
+    <VBox spacing="6" alignment="CENTER">
+        <Label text="Create Booking" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
+        <Label text="Select customer, dates, then reserve an available vehicle"
+               style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
+    </VBox>
+
+    <GridPane hgap="18" vgap="14" maxWidth="1100">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="25"/>
+            <ColumnConstraints percentWidth="18"/>
+            <ColumnConstraints percentWidth="18"/>
+            <ColumnConstraints percentWidth="18"/>
+            <ColumnConstraints percentWidth="21"/>
+        </columnConstraints>
+
+        <Label text="Customer ID" style="-fx-text-fill: #666666;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="customerComboBox" promptText="Select customer" maxWidth="Infinity" visibleRowCount="6"
+                  GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="customerIdField" visible="false" managed="false" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+        <Label text="Start date" style="-fx-text-fill: #666666;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <DatePicker fx:id="startDatePicker" promptText="dd/mm/yyyy" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="End date" style="-fx-text-fill: #666666;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <DatePicker fx:id="endDatePicker" promptText="dd/mm/yyyy" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+        <Label text="Employee ID" style="-fx-text-fill: #666666;" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="employeeIdComboBox" promptText="Select employee" maxWidth="Infinity" visibleRowCount="3"
+                  GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        <TextField fx:id="employeeIdField" visible="false" managed="false" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+        <Button text="Show Available Vehicles" onAction="#handleShowAvailableVehicles"
+                style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-weight: bold;"
+                maxWidth="Infinity" prefHeight="42" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+
+        <Label text="Filter by color" style="-fx-text-fill: #666666;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="colorFilterField" promptText="Any" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+
+        <Label text="Vehicle type" style="-fx-text-fill: #666666;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="vehicleTypeFilterField" promptText="Any" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Max price/day" style="-fx-text-fill: #666666;" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+        <TextField fx:id="maxPriceFilterField" promptText="DKK" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+
+        <Label text="Status" style="-fx-text-fill: #666666;" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+        <TextField text="Date-based" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+    </GridPane>
+
+    <TableView fx:id="createVehiclesTable" prefHeight="210" maxWidth="1100">
+        <columns>
+            <TableColumn fx:id="createVehicleIdColumn" text="ID" prefWidth="90"/>
+            <TableColumn fx:id="createVehicleModelColumn" text="Vehicle" prefWidth="170"/>
+            <TableColumn fx:id="createVehicleTypeColumn" text="Type" prefWidth="140"/>
+            <TableColumn fx:id="createVehicleColorColumn" text="Color" prefWidth="140"/>
+            <TableColumn fx:id="createVehiclePriceColumn" text="Price/hour" prefWidth="130"/>
+            <TableColumn fx:id="createVehicleStatusColumn" text="Status" prefWidth="140"/>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_LEFT" spacing="12" maxWidth="1100">
+        <Label text="Selected vehicle ID" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
+        <TextField fx:id="vehicleIdField" promptText="Vehicle ID" prefWidth="150"/>
+        <TextField fx:id="statusField" text="ACTIVE" visible="false" managed="false"/>
+        <Label fx:id="selectedVehicleStatusLabel" text="Select vehicle" style="-fx-background-color: #eeeeee; -fx-text-fill: #777777; -fx-background-radius: 16; -fx-padding: 7 20 7 20; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <HBox alignment="CENTER_RIGHT" spacing="18" maxWidth="1100">
+        <Button text="Cancel" onAction="#showBookingMenu" prefWidth="128" prefHeight="42"/>
+        <Button fx:id="confirmBookingButton" text="Confirm Booking" onAction="#handleCreateBooking"
+                style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-size: 16px; -fx-font-weight: bold;"
+                prefWidth="166" prefHeight="42"/>
+    </HBox>
+
+    <Label fx:id="statusLabel"
+           style="-fx-background-color: rgba(255,255,255,0.92); -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8 18 8 18; -fx-text-fill: #2f3338;"/>
+</VBox>
