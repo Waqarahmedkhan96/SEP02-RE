@@ -7,9 +7,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="completeRoot" spacing="24" xmlns:fx="http://javafx.com/fxml"
+<VBox fx:id="completeRoot" spacing="16" xmlns:fx="http://javafx.com/fxml"
       fx:controller="view.CompleteBookingController"
-      style="-fx-background-color: #f7f7f7; -fx-border-color: #d5d5d5; -fx-padding: 22 54 42 54;">
+      style="-fx-background-color: #f7f7f7; -fx-border-color: #d5d5d5; -fx-padding: 22 54 28 54;">
     <Button text="Back" onAction="#showBookingMenu"
             style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;"
             prefWidth="86" prefHeight="34"/>
@@ -18,12 +18,10 @@
         <Label text="Close the active booking when the vehicle is returned" style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
     </VBox>
     <HBox spacing="18" maxWidth="980">
-        <TextField fx:id="searchField" promptText="Booking ID, customer, reg no" prefWidth="360"/>
-        <Button text="Search" onAction="#handleSearch"
-                style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;"
-                prefWidth="110" prefHeight="42"/>
+        <TextField fx:id="completeSearchField" promptText="Booking ID, customer ID, vehicle ID, status" prefWidth="360"/>
+        <Button text="Search" onAction="#handleSearchBookings" style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;" prefWidth="110" prefHeight="42"/>
     </HBox>
-    <TableView fx:id="completeBookingsTable" prefHeight="150" maxWidth="980">
+    <TableView fx:id="completeBookingsTable" prefHeight="240" minHeight="180" maxWidth="980" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="completeBookingIdColumn" text="Booking ID" prefWidth="120"/>
             <TableColumn fx:id="completeStartDateColumn" text="Start" prefWidth="180"/>
@@ -32,15 +30,10 @@
             <TableColumn fx:id="completeVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
         </columns>
     </TableView>
-    <VBox spacing="14" maxWidth="980"
-          style="-fx-background-color: white; -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 28;">
-        <Label fx:id="selectedBookingLabel" text="Select a booking above to complete it"
-               style="-fx-text-fill: #2f3338; -fx-font-size: 14px;"/>
-        <HBox spacing="18" alignment="CENTER_LEFT">
-            <Button fx:id="completeButton" text="Complete Booking" onAction="#handleComplete" disable="true"
-                    style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;"
-                    prefWidth="180" prefHeight="42"/>
-            <Label fx:id="resultLabel" style="-fx-text-fill: #777777; -fx-font-size: 13px;"/>
-        </HBox>
-    </VBox>
+    <Button text="Complete Selected Booking" onAction="#handleCompleteSelectedBooking"
+            style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;"
+            maxWidth="980" prefHeight="42"/>
+    <Label fx:id="completeStatusLabel"
+           style="-fx-background-color: white; -fx-border-color: #d8d8d8; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 12 18 12 18; -fx-text-fill: #777777;"
+           maxWidth="980"/>
 </VBox>

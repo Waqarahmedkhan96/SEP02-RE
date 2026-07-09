@@ -1,46 +1,42 @@
 package view;
 
+import client.Client;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import model.Booking;
-import viewmodel.BookingViewModel;
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
+import shared.GetBookingsRequest;
+import shared.GetBookingsResponse;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Locale;
 
 public class CancelBookingController {
     @FXML private VBox cancelRoot;
+    @FXML private TextField cancelSearchField;
     @FXML private TableView<Booking> cancelBookingsTable;
     @FXML private TableColumn<Booking, Number> cancelBookingIdColumn;
     @FXML private TableColumn<Booking, String> cancelStartDateColumn;
     @FXML private TableColumn<Booking, String> cancelEndDateColumn;
     @FXML private TableColumn<Booking, String> cancelStatusColumn;
     @FXML private TableColumn<Booking, Number> cancelVehicleIdColumn;
-    @FXML private TextField cancelSearchField;
-    @FXML private Label cancelSelectionLabel;
-    @FXML private Button confirmCancelBookingButton;
-    @FXML private Label statusLabel;
+    @FXML private Label cancelStatusLabel;
 
-    private final BookingViewModel viewModel = new BookingViewModel();
+    private final Client client = new Client();
+    private final ObservableList<Booking> bookings = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         BookingTableBinder.wireBookingTable(cancelBookingsTable, cancelBookingIdColumn, cancelStartDateColumn,
                 cancelEndDateColumn, cancelStatusColumn, cancelVehicleIdColumn);
-        cancelBookingsTable.setItems(viewModel.cancellableBookings);
-        cancelBookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
-                updateCancelSelection(selectedBooking));
-        statusLabel.textProperty().bind(viewModel.statusMessage);
-        statusLabel.visibleProperty().bind(viewModel.statusMessage.isNotEmpty());
-        statusLabel.managedProperty().bind(statusLabel.visibleProperty());
-        handleSearchCancellableBookings();
+        cancelBookingsTable.setItems(bookings);
+        loadBookingsFromDatabase();
     }
 
     @FXML
@@ -49,52 +45,101 @@ public class CancelBookingController {
     }
 
     @FXML
-    private void handleSearchCancellableBookings() {
-        String query = cancelSearchField == null ? "" : cancelSearchField.getText();
-        viewModel.searchCancellableBookings(query);
-        cancelBookingsTable.getSelectionModel().clearSelection();
-        updateCancelSelection(null);
+    private void handleFindBooking() {
+        loadBookingsFromDatabase(false);
+        applyCurrentFilter(null);
     }
 
     @FXML
-    private void handleCancelBooking() {
+    private void handleCancelSelectedBooking() {
         Booking selectedBooking = cancelBookingsTable.getSelectionModel().getSelectedItem();
         if (selectedBooking == null) {
-            viewModel.statusMessage.set("Select a booking to cancel");
+            cancelStatusLabel.setText("Select a booking to cancel.");
             return;
         }
 
-        if (!selectedBooking.getStartDate().isAfter(LocalDateTime.now())) {
-            viewModel.statusMessage.set("The booking period has already started, so the booking cannot be cancelled");
-            return;
-        }
-
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Cancel Booking");
-        confirmation.setHeaderText("Cancel booking #" + selectedBooking.getBookingId() + "?");
-        confirmation.setContentText("The booking will be marked as cancelled and the vehicle will be released for this period.");
-        Optional<ButtonType> result = confirmation.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
-            viewModel.statusMessage.set("Cancellation process cancelled");
-            return;
-        }
-
-        if (viewModel.cancelBooking(selectedBooking.getBookingId())) {
-            handleSearchCancellableBookings();
+        int bookingId = selectedBooking.getBookingId();
+        try {
+            CancelBookingResponse response = client.cancelBooking(new CancelBookingRequest(bookingId));
+            if (response.isSuccess()) {
+                loadBookingsFromDatabase(false);
+                applyCurrentFilter("Cancelled booking #" + bookingId);
+                selectBookingById(bookingId);
+            } else {
+                cancelStatusLabel.setText("Failed: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            cancelStatusLabel.setText("Connection error: " + e.getMessage());
         }
     }
 
-    private void updateCancelSelection(Booking selectedBooking) {
-        boolean hasSelection = selectedBooking != null;
-        confirmCancelBookingButton.setDisable(!hasSelection);
-        if (!hasSelection) {
-            cancelSelectionLabel.setText("Select a booking to cancel");
+    private void applyCurrentFilter(String successMessage) {
+        String query = normalize(cancelSearchField.getText());
+        if (query.isBlank()) {
+            cancelBookingsTable.setItems(bookings);
+            cancelStatusLabel.setText(successMessage == null
+                    ? "Showing " + bookings.size() + " booking(s)"
+                    : successMessage);
             return;
         }
 
-        cancelSelectionLabel.setText("Booking #" + selectedBooking.getBookingId()
-                + " | Vehicle #" + selectedBooking.getVehicleId()
-                + " | " + selectedBooking.getStartDate().toLocalDate()
-                + " to " + selectedBooking.getEndDate().toLocalDate());
+        ObservableList<Booking> filteredBookings = bookings.stream()
+                .filter(booking -> matchesBooking(booking, query))
+                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+
+        cancelBookingsTable.setItems(filteredBookings);
+        cancelStatusLabel.setText(successMessage == null
+                ? "Found " + filteredBookings.size() + " booking(s)"
+                : successMessage);
+    }
+
+    private void loadBookingsFromDatabase() {
+        loadBookingsFromDatabase(true);
+    }
+
+    private void loadBookingsFromDatabase(boolean updateStatus) {
+        try {
+            GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
+            if (response.isSuccess()) {
+                ObservableList<Booking> cancellableBookings = response.getBookings().stream()
+                        .filter(this::canBeCancelled)
+                        .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+                bookings.setAll(cancellableBookings);
+                cancelBookingsTable.setItems(bookings);
+                if (updateStatus) {
+                    cancelStatusLabel.setText("Loaded " + bookings.size() + " cancellable booking(s) from database");
+                }
+            } else {
+                cancelStatusLabel.setText("Failed: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            cancelStatusLabel.setText("Connection error: " + e.getMessage());
+        }
+    }
+
+    private void selectBookingById(int bookingId) {
+        for (Booking booking : cancelBookingsTable.getItems()) {
+            if (booking.getBookingId() == bookingId) {
+                cancelBookingsTable.getSelectionModel().select(booking);
+                cancelBookingsTable.scrollTo(booking);
+                return;
+            }
+        }
+    }
+
+    private boolean matchesBooking(Booking booking, String query) {
+        return String.valueOf(booking.getBookingId()).contains(query)
+                || String.valueOf(booking.getCustomerId()).contains(query)
+                || String.valueOf(booking.getVehicleId()).contains(query)
+                || normalize(booking.getBookingStatus()).contains(query);
+    }
+
+    private boolean canBeCancelled(Booking booking) {
+        String status = normalize(booking.getBookingStatus());
+        return "active".equals(status) || "pending".equals(status);
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 }

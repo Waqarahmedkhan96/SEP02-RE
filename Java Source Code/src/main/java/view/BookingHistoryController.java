@@ -1,5 +1,8 @@
 package view;
 
+import client.Client;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -7,35 +10,33 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import model.Booking;
-import viewmodel.BookingViewModel;
+import shared.GetBookingsRequest;
+import shared.GetBookingsResponse;
+
+import java.util.Locale;
 
 public class BookingHistoryController {
     @FXML private VBox historyRoot;
+    @FXML private TextField historyCustomerField;
+    @FXML private TextField historyVehicleField;
+    @FXML private TextField historyStatusField;
     @FXML private TableView<Booking> historyBookingsTable;
     @FXML private TableColumn<Booking, Number> historyBookingIdColumn;
     @FXML private TableColumn<Booking, String> historyStartDateColumn;
     @FXML private TableColumn<Booking, String> historyEndDateColumn;
     @FXML private TableColumn<Booking, String> historyStatusColumn;
     @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
-    @FXML private TextField historyCustomerFilterField;
-    @FXML private TextField historyVehicleFilterField;
-    @FXML private TextField historyDateFilterField;
-    @FXML private Label historyDetailsLabel;
-    @FXML private Label statusLabel;
+    @FXML private Label historyStatusLabel;
 
-    private final BookingViewModel viewModel = new BookingViewModel();
+    private final Client client = new Client();
+    private final ObservableList<Booking> bookings = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         BookingTableBinder.wireBookingTable(historyBookingsTable, historyBookingIdColumn, historyStartDateColumn,
                 historyEndDateColumn, historyStatusColumn, historyVehicleIdColumn);
-        historyBookingsTable.setItems(viewModel.archivedBookings);
-        historyBookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBooking, selectedBooking) ->
-                showArchivedBookingDetails(selectedBooking));
-        statusLabel.textProperty().bind(viewModel.statusMessage);
-        statusLabel.visibleProperty().bind(viewModel.statusMessage.isNotEmpty());
-        statusLabel.managedProperty().bind(statusLabel.visibleProperty());
-        handleApplyHistoryFilters();
+        historyBookingsTable.setItems(bookings);
+        loadBookingsFromDatabase();
     }
 
     @FXML
@@ -44,39 +45,40 @@ public class BookingHistoryController {
     }
 
     @FXML
-    private void handleApplyHistoryFilters() {
-        viewModel.loadArchivedBookings(
-                historyCustomerFilterField.getText(),
-                historyVehicleFilterField.getText(),
-                historyDateFilterField.getText()
-        );
-        historyBookingsTable.getSelectionModel().clearSelection();
-        historyDetailsLabel.setText("Select an archived booking to view details.");
+    private void handleApplyFilters() {
+        String customerQuery = normalize(historyCustomerField.getText());
+        String vehicleQuery = normalize(historyVehicleField.getText());
+        String statusQuery = normalize(historyStatusField.getText());
+
+        ObservableList<Booking> filteredBookings = bookings.stream()
+                .filter(booking -> customerQuery.isBlank()
+                        || String.valueOf(booking.getCustomerId()).contains(customerQuery))
+                .filter(booking -> vehicleQuery.isBlank()
+                        || String.valueOf(booking.getVehicleId()).contains(vehicleQuery))
+                .filter(booking -> statusQuery.isBlank()
+                        || normalize(booking.getBookingStatus()).contains(statusQuery))
+                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+
+        historyBookingsTable.setItems(filteredBookings);
+        historyStatusLabel.setText("Found " + filteredBookings.size() + " booking(s)");
     }
 
-    @FXML
-    private void handleClearHistoryFilters() {
-        historyCustomerFilterField.clear();
-        historyVehicleFilterField.clear();
-        historyDateFilterField.clear();
-        handleApplyHistoryFilters();
-    }
-
-    private void showArchivedBookingDetails(Booking booking) {
-        if (booking == null) {
-            return;
+    private void loadBookingsFromDatabase() {
+        try {
+            GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
+            if (response.isSuccess()) {
+                bookings.setAll(response.getBookings());
+                historyBookingsTable.setItems(bookings);
+                historyStatusLabel.setText("Loaded " + bookings.size() + " booking(s) from database");
+            } else {
+                historyStatusLabel.setText("Failed: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            historyStatusLabel.setText("Connection error: " + e.getMessage());
         }
+    }
 
-        String actualReturn = booking.getActualReturnDate() == null
-                ? "Not recorded"
-                : String.valueOf(booking.getActualReturnDate());
-        historyDetailsLabel.setText("Booking #" + booking.getBookingId()
-                + " | Customer ID: " + booking.getCustomerId()
-                + " | Vehicle ID: " + booking.getVehicleId()
-                + " | Employee ID: " + booking.getEmployeeId()
-                + " | Start: " + booking.getStartDate()
-                + " | End: " + booking.getEndDate()
-                + " | Returned: " + actualReturn
-                + " | Status: " + booking.getBookingStatus());
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 }

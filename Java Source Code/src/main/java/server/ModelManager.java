@@ -17,10 +17,10 @@ import model.Vehicle;
 import model.state.BookingState;
 import model.state.BookingStateFactory;
 import model.state.VehicleStateFactory;
-import shared.CancelBookingRequest;
-import shared.CancelBookingResponse;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
@@ -35,6 +35,8 @@ import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
 import shared.GetCustomersRequest;
 import shared.GetCustomersResponse;
+import shared.GetBookingsRequest;
+import shared.GetBookingsResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
@@ -105,17 +107,6 @@ public class ModelManager {
         }
     }
 
-    public GetCustomersResponse getCustomers(GetCustomersRequest req) {
-        try {
-            CustomerDAO dao = DAOFactory.getCustomerDAO();
-            List<Customer> customers = dao.getAllCustomers();
-            return new GetCustomersResponse(true, "Customers loaded", customers);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new GetCustomersResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
-        }
-    }
-
     public GetCustomerBookingsResponse getCustomerBookings(GetCustomerBookingsRequest req) {
         if (req.getCustomerId() <= 0) {
             return new GetCustomerBookingsResponse(false, "Customer is required", Collections.emptyList());
@@ -134,21 +125,34 @@ public class ModelManager {
         }
     }
 
+    public GetBookingsResponse getBookings(GetBookingsRequest req) {
+        try {
+            BookingDAO dao = DAOFactory.getBookingDAO();
+            List<Booking> bookings = dao.findAll();
+            return new GetBookingsResponse(true, "Bookings loaded", bookings);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public GetCustomersResponse getCustomers(GetCustomersRequest req) {
+        try {
+            CustomerDAO dao = DAOFactory.getCustomerDAO();
+            return new GetCustomersResponse(true, "Customers loaded", dao.getAllCustomers());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new GetCustomersResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
     public SearchBookingsResponse searchBookings(SearchBookingsRequest req) {
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
             List<Booking> bookings = req.isArchivedOnly()
                     ? dao.searchArchivedBookings(req.getCustomerQuery(), req.getVehicleQuery(), req.getDateQuery())
                     : dao.searchBookings(req.getQuery(), req.isCancellableOnly());
-            String message;
-            if (req.isArchivedOnly()) {
-                message = bookings.isEmpty()
-                        ? "No archived bookings match the search criteria"
-                        : "Loaded " + bookings.size() + " archived booking(s)";
-            } else {
-                message = bookings.isEmpty() ? "Booking cannot be found" : "Matching bookings loaded";
-            }
-            return new SearchBookingsResponse(true, message, bookings);
+            return new SearchBookingsResponse(true, "Bookings loaded", bookings);
         } catch (Exception e) {
             e.printStackTrace();
             return new SearchBookingsResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
@@ -252,14 +256,10 @@ public class ModelManager {
 
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
+
             Booking booking = dao.findById(req.getBookingId());
             if (booking == null) {
-                return new CancelBookingResponse(false, "Booking cannot be found");
-            }
-
-            if (!booking.getStartDate().isAfter(LocalDateTime.now())) {
-                return new CancelBookingResponse(false,
-                        "The booking period has already started, so the booking cannot be cancelled");
+                return new CancelBookingResponse(false, "Booking not found");
             }
 
             BookingState currentState = BookingStateFactory.fromStatus(booking.getBookingStatus());
@@ -271,8 +271,7 @@ public class ModelManager {
             }
 
             dao.cancelBooking(booking.getBookingId(), booking.getVehicleId(), nextState.getStatusName());
-            return new CancelBookingResponse(true,
-                    "Booking #" + booking.getBookingId() + " cancelled. Vehicle availability updated.");
+            return new CancelBookingResponse(true, "Booking cancelled #" + booking.getBookingId());
         } catch (Exception e) {
             e.printStackTrace();
             return new CancelBookingResponse(false, "Database error: " + e.getMessage());

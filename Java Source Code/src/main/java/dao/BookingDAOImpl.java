@@ -79,6 +79,24 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
+    public List<Booking> findAll() throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking " +
+                "ORDER BY start_date DESC, booking_id DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
     public List<Booking> findByCustomerId(int customerId) throws SQLException {
         String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
                 "customer_id, vehicle_id, employee_id " +

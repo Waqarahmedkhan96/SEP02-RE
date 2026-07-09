@@ -26,7 +26,7 @@
     <HBox spacing="18" alignment="CENTER_LEFT" maxWidth="1100">
         <VBox spacing="6">
             <Label text="Search booking" style="-fx-text-fill: #666666;"/>
-            <TextField fx:id="updateSearchField" promptText="Booking ID, customer, vehicle" prefWidth="330"/>
+            <TextField fx:id="updateSearchField" promptText="Booking ID, customer ID, vehicle ID, status" prefWidth="330"/>
         </VBox>
         <Button text="Search" onAction="#handleSearchActiveBookings"
                 style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-weight: bold;"

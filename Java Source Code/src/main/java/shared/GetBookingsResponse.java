@@ -1,16 +1,21 @@
 package shared;
 
-import java.io.Serializable;
+import model.Booking;
 
-public class CancelBookingResponse implements Serializable {
+import java.io.Serializable;
+import java.util.List;
+
+public class GetBookingsResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final boolean success;
     private final String message;
+    private final List<Booking> bookings;
 
-    public CancelBookingResponse(boolean success, String message) {
+    public GetBookingsResponse(boolean success, String message, List<Booking> bookings) {
         this.success = success;
         this.message = message;
+        this.bookings = bookings;
     }
 
     public boolean isSuccess() {
@@ -19,5 +24,9 @@ public class CancelBookingResponse implements Serializable {
 
     public String getMessage() {
         return message;
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
     }
 }

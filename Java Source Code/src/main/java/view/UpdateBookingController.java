@@ -1,5 +1,7 @@
 package view;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -10,8 +12,11 @@ import javafx.scene.layout.VBox;
 import model.Booking;
 import viewmodel.BookingViewModel;
 
+import java.util.Locale;
+
 public class UpdateBookingController {
     @FXML private VBox updateRoot;
+    @FXML private TextField updateSearchField;
     @FXML private TextField bookingIdField;
     @FXML private TextField customerIdField;
     @FXML private TextField vehicleIdField;
@@ -22,7 +27,6 @@ public class UpdateBookingController {
     @FXML private DatePicker updateStartDatePicker;
     @FXML private DatePicker updateEndDatePicker;
     @FXML private TextField statusField;
-    @FXML private TextField updateSearchField;
     @FXML private TableView<Booking> bookingsTable;
     @FXML private TableColumn<Booking, Number> bookingIdColumn;
     @FXML private TableColumn<Booking, String> startDateColumn;
@@ -52,7 +56,7 @@ public class UpdateBookingController {
         statusLabel.textProperty().bind(viewModel.statusMessage);
         statusLabel.visibleProperty().bind(viewModel.statusMessage.isNotEmpty());
         statusLabel.managedProperty().bind(statusLabel.visibleProperty());
-        handleSearchActiveBookings();
+        viewModel.searchActiveBookings("");
     }
 
     @FXML
@@ -62,16 +66,37 @@ public class UpdateBookingController {
 
     @FXML
     private void handleSearchActiveBookings() {
-        String query = updateSearchField == null ? "" : updateSearchField.getText();
-        viewModel.searchActiveBookings(query);
+        viewModel.loadActiveCustomerBookings();
+        if (viewModel.customerBookings.isEmpty()) {
+            viewModel.searchActiveBookings(updateSearchField.getText());
+            return;
+        }
+        applySearchFilter();
     }
 
     @FXML
     private void handleUpdateBooking() {
         copyUpdateFieldsToBoundCreateFields();
         if (viewModel.updateBooking()) {
-            handleSearchActiveBookings();
+            viewModel.loadActiveCustomerBookings();
         }
+    }
+
+    private void applySearchFilter() {
+        String query = normalize(updateSearchField.getText());
+        if (query.isBlank()) {
+            return;
+        }
+
+        ObservableList<Booking> filteredBookings = viewModel.customerBookings.stream()
+                .filter(booking -> String.valueOf(booking.getBookingId()).contains(query)
+                        || String.valueOf(booking.getCustomerId()).contains(query)
+                        || String.valueOf(booking.getVehicleId()).contains(query)
+                        || normalize(booking.getBookingStatus()).contains(query))
+                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+
+        viewModel.customerBookings.setAll(filteredBookings);
+        viewModel.statusMessage.set("Found " + filteredBookings.size() + " active booking(s)");
     }
 
     private void fillUpdateForm(Booking selectedBooking) {
@@ -104,5 +129,9 @@ public class UpdateBookingController {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface BookingDAO {
     int create(Booking booking) throws SQLException;
+    List<Booking> findAll() throws SQLException;
     List<Booking> findByCustomerId(int customerId) throws SQLException;
     List<Booking> findActiveByCustomerId(int customerId) throws SQLException;
     List<Booking> searchBookings(String query, boolean cancellableOnly) throws SQLException;

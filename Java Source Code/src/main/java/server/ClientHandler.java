@@ -5,10 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import shared.CancelBookingRequest;
-import shared.CancelBookingResponse;
 import shared.CheckAvailabilityRequest;
 import shared.CheckAvailabilityResponse;
+import shared.CancelBookingRequest;
+import shared.CancelBookingResponse;
 import shared.CompleteBookingRequest;
 import shared.CompleteBookingResponse;
 import shared.CreateBookingRequest;
@@ -23,6 +23,8 @@ import shared.GetCustomerBookingsRequest;
 import shared.GetCustomerBookingsResponse;
 import shared.GetCustomersRequest;
 import shared.GetCustomersResponse;
+import shared.GetBookingsRequest;
+import shared.GetBookingsResponse;
 import shared.GetVehiclesRequest;
 import shared.GetVehiclesResponse;
 import shared.HandleOverdueReturnsRequest;
@@ -59,11 +61,14 @@ public class ClientHandler implements Runnable {
             } else if (requestObj instanceof CreateBookingRequest req) {
                 CreateBookingResponse response = modelManager.createBooking(req);
                 out.writeObject(response);
-            } else if (requestObj instanceof GetCustomersRequest req) {
-                GetCustomersResponse response = modelManager.getCustomers(req);
-                out.writeObject(response);
             } else if (requestObj instanceof GetCustomerBookingsRequest req) {
                 GetCustomerBookingsResponse response = modelManager.getCustomerBookings(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof GetBookingsRequest req) {
+                GetBookingsResponse response = modelManager.getBookings(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof GetCustomersRequest req) {
+                GetCustomersResponse response = modelManager.getCustomers(req);
                 out.writeObject(response);
             } else if (requestObj instanceof SearchBookingsRequest req) {
                 SearchBookingsResponse response = modelManager.searchBookings(req);
