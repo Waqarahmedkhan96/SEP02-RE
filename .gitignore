@@ -1,1 +1,5 @@
 /Resources/
+out/
+target/
+IntelliJ Source Code/out/
+IntelliJ Source Code/target/
