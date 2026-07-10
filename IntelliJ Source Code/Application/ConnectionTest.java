@@ -1,6 +1,5 @@
-package tests;
+package application;
 
-import utils.DatabaseConnection;
 import java.sql.Connection;
 
 public class ConnectionTest {

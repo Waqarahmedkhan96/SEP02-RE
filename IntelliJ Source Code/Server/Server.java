@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 
-import utils.DatabaseSeeder;
+import application.DatabaseSeeder;
 
 public class Server {
     private static final int PORT = 5000;

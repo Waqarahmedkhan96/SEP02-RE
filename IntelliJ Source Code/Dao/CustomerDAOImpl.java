@@ -2,7 +2,7 @@ package dao;
 
 import model.Customer;
 import model.DrivingLicense;
-import utils.DatabaseConnection;
+import application.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;

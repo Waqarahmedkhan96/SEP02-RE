@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Vehicle;
-import utils.DatabaseConnection;
+import application.DatabaseConnection;
 
 public class VehicleDAOImpl implements VehicleDAO {
 @Override

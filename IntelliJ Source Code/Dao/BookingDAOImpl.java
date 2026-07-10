@@ -3,7 +3,7 @@ package dao;
 import model.Booking;
 import model.Vehicle;
 import model.state.VehicleStateFactory;
-import utils.DatabaseConnection;
+import application.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

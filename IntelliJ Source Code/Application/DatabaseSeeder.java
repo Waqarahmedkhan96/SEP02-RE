@@ -1,4 +1,4 @@
-package utils;
+package application;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseSeeder {
-    private static final String SEED_SCRIPT = "/db/seed_test_data.sql";
+    private static final String SEED_SCRIPT = "/application/seed_test_data.sql";
 
     public static void seedTestData() throws SQLException, IOException {
         String sql = readSeedScript();
