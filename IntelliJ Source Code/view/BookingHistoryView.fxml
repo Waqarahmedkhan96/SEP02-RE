@@ -16,7 +16,7 @@
             prefWidth="86" prefHeight="34"/>
     <VBox spacing="6" alignment="CENTER">
         <Label text="Booking History / Archive" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
-        <Label text="View read-only completed booking records" style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
+        <Label text="view read-only completed booking records" style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
     </VBox>
     <GridPane hgap="18" maxWidth="980">
         <columnConstraints>

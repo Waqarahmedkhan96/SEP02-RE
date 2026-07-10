@@ -54,7 +54,7 @@ INSERT INTO vehicle (
 VALUES
     (1, 'Toyota Corolla', 'Sedan', 'White', 'Hybrid', 'AB12345', 450, 1000, 4, 75, 'B', 'Good', 5, 'available'),
     (2, 'VW Golf', 'Hatchback', 'Black', 'Petrol', 'CD67890', 520, 1000, 4, 75, 'B', 'Good', 5, 'available'),
-    (3, 'Tesla Model 3', 'Electric', 'Blue', 'Electric', 'EF11223', 850, 1000, 4, 75, 'B', 'Good', 5, 'available'),
+    (3, 'Tesla model 3', 'Electric', 'Blue', 'Electric', 'EF11223', 850, 1000, 4, 75, 'B', 'Good', 5, 'available'),
     (4, 'Ford Transit', 'Van', 'Silver', 'Diesel', 'GH44556', 700, 1000, 4, 75, 'B', 'Good', 5, 'rented'),
     (5, 'BMW 320i', 'Sedan', 'Grey', 'Petrol', 'IJ77889', 780, 1000, 4, 75, 'B', 'Good', 5, 'available'),
     (6, 'Nissan Qashqai', 'SUV', 'Red', 'Hybrid', 'KL99001', 630, 1000, 4, 75, 'B', 'Good', 5, 'maintenance'),

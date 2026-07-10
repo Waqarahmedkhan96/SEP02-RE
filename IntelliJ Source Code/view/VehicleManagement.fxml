@@ -74,13 +74,13 @@
 
             </VBox>
 
-            <!-- View Vehicles -->
+            <!-- view Vehicles -->
             <VBox spacing="12"
                   alignment="CENTER"
                   GridPane.columnIndex="1"
                   GridPane.rowIndex="0">
 
-                <Button text="View Vehicles"
+                <Button text="view Vehicles"
                         onAction="#showViewVehicle"
                         prefHeight="48"
                         maxWidth="Infinity"

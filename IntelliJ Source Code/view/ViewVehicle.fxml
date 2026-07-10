@@ -112,7 +112,7 @@
                               prefWidth="55"/>
 
                 <TableColumn fx:id="modelColumn"
-                             text="Model"
+                             text="model"
                               prefWidth="110"/>
 
                 <TableColumn fx:id="vehicleTypeColumn"

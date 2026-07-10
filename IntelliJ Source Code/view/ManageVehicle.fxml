@@ -56,7 +56,7 @@
                 </columnConstraints>
 
                 <TextField fx:id="modelInput"
-                           promptText="Model"
+                           promptText="model"
                            maxWidth="Infinity"
                            GridPane.columnIndex="0"
                            GridPane.rowIndex="0"/>
@@ -183,7 +183,7 @@
                              text="ID"
                              prefWidth="70"/>
                 <TableColumn fx:id="modelColumn"
-                             text="Model"
+                             text="model"
                              prefWidth="210"/>
                 <TableColumn fx:id="vehicleTypeColumn"
                              text="Type"
