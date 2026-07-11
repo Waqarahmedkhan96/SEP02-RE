@@ -150,7 +150,7 @@ public class ModelManager {
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
             List<Booking> bookings = req.isArchivedOnly()
-                    ? dao.searchArchivedBookings(req.getCustomerQuery(), req.getVehicleQuery(), req.getDateQuery())
+                    ? dao.searchArchivedBookings(req.getBookingQuery(), req.getCustomerQuery(), req.getVehicleQuery(), req.getDateQuery())
                     : dao.searchBookings(req.getQuery(), req.isCancellableOnly());
             return new SearchBookingsResponse(true, "Bookings loaded", bookings);
         } catch (Exception e) {

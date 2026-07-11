@@ -12,7 +12,7 @@ public interface BookingDAO {
     List<Booking> findByCustomerId(int customerId) throws SQLException;
     List<Booking> findActiveByCustomerId(int customerId) throws SQLException;
     List<Booking> searchBookings(String query, boolean cancellableOnly) throws SQLException;
-    List<Booking> searchArchivedBookings(String customerQuery, String vehicleQuery, String dateQuery) throws SQLException;
+    List<Booking> searchArchivedBookings(String bookingQuery, String customerQuery, String vehicleQuery, String dateQuery) throws SQLException;
 
     Booking findById(int bookingId) throws SQLException;
     void updateActiveBooking(Booking booking) throws SQLException;
