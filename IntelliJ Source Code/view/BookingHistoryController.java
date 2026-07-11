@@ -1,6 +1,8 @@
 package view;
 
 import client.Client;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,11 +23,15 @@ public class BookingHistoryController {
     @FXML private TextField historyVehicleField;
     @FXML private TextField historyStatusField;
     @FXML private TableView<Booking> historyBookingsTable;
+    @FXML private TableColumn<Booking, Number> historyCustomerIdColumn;
     @FXML private TableColumn<Booking, Number> historyBookingIdColumn;
+    @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
     @FXML private TableColumn<Booking, String> historyStartDateColumn;
     @FXML private TableColumn<Booking, String> historyEndDateColumn;
+    @FXML private TableColumn<Booking, String> historyPriceHourColumn;
+    @FXML private TableColumn<Booking, String> historyTotalHoursColumn;
+    @FXML private TableColumn<Booking, String> historyTotalPriceColumn;
     @FXML private TableColumn<Booking, String> historyStatusColumn;
-    @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
     @FXML private Label historyStatusLabel;
 
     private final Client client = new Client();
@@ -35,6 +41,10 @@ public class BookingHistoryController {
     public void initialize() {
         BookingTableBinder.wireBookingTable(historyBookingsTable, historyBookingIdColumn, historyStartDateColumn,
                 historyEndDateColumn, historyStatusColumn, historyVehicleIdColumn);
+        historyCustomerIdColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getCustomerId()));
+        historyPriceHourColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getPriceHour())));
+        historyTotalHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getTotalHours())));
+        historyTotalPriceColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getTotalPrice())));
         historyBookingsTable.setItems(bookings);
         loadBookingsFromDatabase();
     }
@@ -62,7 +72,7 @@ public class BookingHistoryController {
             if (response.isSuccess()) {
                 bookings.setAll(response.getBookings());
                 historyBookingsTable.setItems(bookings);
-                historyStatusLabel.setText("Loaded " + bookings.size() + " completed booking(s) from database");
+                historyStatusLabel.setText("Loaded " + bookings.size() + " completed/cancelled booking(s) from database");
             } else {
                 historyStatusLabel.setText("Failed: " + response.getMessage());
             }
@@ -73,5 +83,13 @@ public class BookingHistoryController {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String formatMoney(double value) {
+        return String.format(Locale.ROOT, "%.2f", value);
+    }
+
+    private String formatNumber(double value) {
+        return String.format(Locale.ROOT, "%.2f", value);
     }
 }

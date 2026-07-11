@@ -16,7 +16,7 @@
             prefWidth="86" prefHeight="34"/>
     <VBox spacing="6" alignment="CENTER">
         <Label text="Booking History / Archive" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2f3338;"/>
-        <Label text="view read-only completed booking records" style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
+        <Label text="view read-only completed and cancelled booking records" style="-fx-font-size: 15px; -fx-text-fill: #777777;"/>
     </VBox>
     <GridPane hgap="18" maxWidth="980">
         <columnConstraints>
@@ -27,16 +27,20 @@
         </columnConstraints>
         <TextField fx:id="historyCustomerField" promptText="Customer ID" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <TextField fx:id="historyVehicleField" promptText="Vehicle ID" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <TextField fx:id="historyStatusField" text="COMPLETED" editable="false" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <TextField fx:id="historyStatusField" text="COMPLETED / CANCELLED" editable="false" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
         <Button text="Apply Filters" onAction="#handleApplyFilters" style="-fx-background-color: #050505; -fx-text-fill: #ffe600; -fx-border-color: #ffe600; -fx-border-radius: 5; -fx-background-radius: 5;" maxWidth="Infinity" prefHeight="42" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
     </GridPane>
-    <TableView fx:id="historyBookingsTable" prefHeight="260" minHeight="190" maxWidth="980" VBox.vgrow="ALWAYS">
+    <TableView fx:id="historyBookingsTable" prefHeight="260" minHeight="190" maxWidth="1180" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="historyBookingIdColumn" text="Booking ID" prefWidth="120"/>
-            <TableColumn fx:id="historyStartDateColumn" text="Start" prefWidth="180"/>
-            <TableColumn fx:id="historyEndDateColumn" text="End" prefWidth="180"/>
-            <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="140"/>
-            <TableColumn fx:id="historyVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
+            <TableColumn fx:id="historyCustomerIdColumn" text="Customer ID" prefWidth="105"/>
+            <TableColumn fx:id="historyBookingIdColumn" text="Booking ID" prefWidth="100"/>
+            <TableColumn fx:id="historyVehicleIdColumn" text="Vehicle ID" prefWidth="95"/>
+            <TableColumn fx:id="historyStartDateColumn" text="Start" prefWidth="150"/>
+            <TableColumn fx:id="historyEndDateColumn" text="End" prefWidth="150"/>
+            <TableColumn fx:id="historyPriceHourColumn" text="Price / Hour" prefWidth="110"/>
+            <TableColumn fx:id="historyTotalHoursColumn" text="Total Hours" prefWidth="110"/>
+            <TableColumn fx:id="historyTotalPriceColumn" text="Total Price" prefWidth="110"/>
+            <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="120"/>
         </columns>
     </TableView>
     <Label fx:id="historyStatusLabel"
