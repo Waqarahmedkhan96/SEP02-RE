@@ -10,8 +10,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import model.Booking;
-import shared.GetBookingsRequest;
-import shared.GetBookingsResponse;
+import shared.SearchBookingsRequest;
+import shared.SearchBookingsResponse;
 
 import java.util.Locale;
 
@@ -48,28 +48,21 @@ public class BookingHistoryController {
     private void handleApplyFilters() {
         String customerQuery = normalize(historyCustomerField.getText());
         String vehicleQuery = normalize(historyVehicleField.getText());
-        String statusQuery = normalize(historyStatusField.getText());
-
-        ObservableList<Booking> filteredBookings = bookings.stream()
-                .filter(booking -> customerQuery.isBlank()
-                        || String.valueOf(booking.getCustomerId()).contains(customerQuery))
-                .filter(booking -> vehicleQuery.isBlank()
-                        || String.valueOf(booking.getVehicleId()).contains(vehicleQuery))
-                .filter(booking -> statusQuery.isBlank()
-                        || normalize(booking.getBookingStatus()).contains(statusQuery))
-                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
-
-        historyBookingsTable.setItems(filteredBookings);
-        historyStatusLabel.setText("Found " + filteredBookings.size() + " booking(s)");
+        loadArchivedBookingsFromDatabase(customerQuery, vehicleQuery, "");
     }
 
     private void loadBookingsFromDatabase() {
+        loadArchivedBookingsFromDatabase("", "", "");
+    }
+
+    private void loadArchivedBookingsFromDatabase(String customerQuery, String vehicleQuery, String dateQuery) {
         try {
-            GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
+            SearchBookingsResponse response = client.searchBookings(
+                    new SearchBookingsRequest(customerQuery, vehicleQuery, dateQuery, true));
             if (response.isSuccess()) {
                 bookings.setAll(response.getBookings());
                 historyBookingsTable.setItems(bookings);
-                historyStatusLabel.setText("Loaded " + bookings.size() + " booking(s) from database");
+                historyStatusLabel.setText("Loaded " + bookings.size() + " completed booking(s) from database");
             } else {
                 historyStatusLabel.setText("Failed: " + response.getMessage());
             }
