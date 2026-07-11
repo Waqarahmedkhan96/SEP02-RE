@@ -8,6 +8,7 @@ import application.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -209,11 +210,13 @@ public class BookingDAOImpl implements BookingDAO {
         String normalizedDate = dateQuery == null ? "" : dateQuery.trim();
 
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
-                "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id " +
+                "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id, v.price_hour, " +
+                "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_hours, " +
+                "(v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_price " +
                 "FROM booking b " +
                 "JOIN customer c ON c.customer_id = b.customer_id " +
                 "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
-                "WHERE UPPER(b.booking_status) = 'COMPLETED' ");
+                "WHERE UPPER(b.booking_status) IN ('COMPLETED', 'CANCELLED') ");
 
         Integer customerNumber = tryParseInt(normalizedCustomer);
         Integer vehicleNumber = tryParseInt(normalizedVehicle);
@@ -596,6 +599,25 @@ public class BookingDAOImpl implements BookingDAO {
         booking.setCustomerId(rs.getInt("customer_id"));
         booking.setVehicleId(rs.getInt("vehicle_id"));
         booking.setEmployeeId(rs.getInt("employee_id"));
+        if (hasColumn(rs, "price_hour")) {
+            booking.setPriceHour(rs.getDouble("price_hour"));
+        }
+        if (hasColumn(rs, "total_hours")) {
+            booking.setTotalHours(rs.getDouble("total_hours"));
+        }
+        if (hasColumn(rs, "total_price")) {
+            booking.setTotalPrice(rs.getDouble("total_price"));
+        }
         return booking;
+    }
+
+    private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+        ResultSetMetaData metadata = rs.getMetaData();
+        for (int i = 1; i <= metadata.getColumnCount(); i++) {
+            if (columnName.equalsIgnoreCase(metadata.getColumnLabel(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
