@@ -204,7 +204,8 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
-    public List<Booking> searchArchivedBookings(String customerQuery, String vehicleQuery, String dateQuery) throws SQLException {
+    public List<Booking> searchArchivedBookings(String bookingQuery, String customerQuery, String vehicleQuery, String dateQuery) throws SQLException {
+        String normalizedBooking = bookingQuery == null ? "" : bookingQuery.trim();
         String normalizedCustomer = customerQuery == null ? "" : customerQuery.trim();
         String normalizedVehicle = vehicleQuery == null ? "" : vehicleQuery.trim();
         String normalizedDate = dateQuery == null ? "" : dateQuery.trim();
@@ -218,10 +219,19 @@ public class BookingDAOImpl implements BookingDAO {
                 "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
                 "WHERE UPPER(b.booking_status) IN ('COMPLETED', 'CANCELLED') ");
 
+        Integer bookingNumber = tryParseInt(normalizedBooking);
         Integer customerNumber = tryParseInt(normalizedCustomer);
         Integer vehicleNumber = tryParseInt(normalizedVehicle);
+        if (!normalizedBooking.isBlank()) {
+            if (bookingNumber != null) {
+                sql.append("AND b.booking_id = ? ");
+            } else {
+                sql.append("AND CAST(b.booking_id AS TEXT) LIKE ? ");
+            }
+        }
+
         if (!normalizedCustomer.isBlank()) {
-            sql.append("AND (c.name ILIKE ? OR c.phone_no ILIKE ? OR c.email ILIKE ? OR c.cpr ILIKE ? OR c.passport_no ILIKE ? ");
+            sql.append("AND (CAST(c.customer_id AS TEXT) LIKE ? OR c.name ILIKE ? OR c.phone_no ILIKE ? OR c.email ILIKE ? OR c.cpr ILIKE ? OR c.passport_no ILIKE ? ");
             if (customerNumber != null) {
                 sql.append("OR c.customer_id = ? ");
             }
@@ -242,11 +252,19 @@ public class BookingDAOImpl implements BookingDAO {
                     "OR TO_CHAR(b.actual_return_date, 'YYYY-MM-DD') LIKE ?) ");
         }
 
-        sql.append("ORDER BY b.actual_return_date DESC NULLS LAST, b.end_date DESC, b.booking_id DESC");
+        sql.append("ORDER BY COALESCE(b.actual_return_date, b.end_date) DESC, b.start_date DESC, b.booking_id DESC");
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             int index = 1;
+            if (!normalizedBooking.isBlank()) {
+                if (bookingNumber != null) {
+                    stmt.setInt(index++, bookingNumber);
+                } else {
+                    stmt.setString(index++, "%" + normalizedBooking + "%");
+                }
+            }
+
             if (!normalizedCustomer.isBlank()) {
                 String likeCustomer = "%" + normalizedCustomer + "%";
                 stmt.setString(index++, likeCustomer);

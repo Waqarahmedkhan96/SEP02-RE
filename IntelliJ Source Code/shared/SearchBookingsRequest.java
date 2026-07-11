@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class SearchBookingsRequest implements Serializable {
     private final String query;
+    private final String bookingQuery;
     private final String customerQuery;
     private final String vehicleQuery;
     private final String dateQuery;
@@ -12,6 +13,7 @@ public class SearchBookingsRequest implements Serializable {
 
     public SearchBookingsRequest(String query, boolean cancellableOnly) {
         this.query = query;
+        this.bookingQuery = query;
         this.customerQuery = query;
         this.vehicleQuery = query;
         this.dateQuery = "";
@@ -21,6 +23,17 @@ public class SearchBookingsRequest implements Serializable {
 
     public SearchBookingsRequest(String customerQuery, String vehicleQuery, String dateQuery, boolean archivedOnly) {
         this.query = "";
+        this.bookingQuery = "";
+        this.customerQuery = customerQuery;
+        this.vehicleQuery = vehicleQuery;
+        this.dateQuery = dateQuery;
+        this.cancellableOnly = false;
+        this.archivedOnly = archivedOnly;
+    }
+
+    public SearchBookingsRequest(String bookingQuery, String customerQuery, String vehicleQuery, String dateQuery, boolean archivedOnly) {
+        this.query = "";
+        this.bookingQuery = bookingQuery;
         this.customerQuery = customerQuery;
         this.vehicleQuery = vehicleQuery;
         this.dateQuery = dateQuery;
@@ -30,6 +43,10 @@ public class SearchBookingsRequest implements Serializable {
 
     public String getQuery() {
         return query;
+    }
+
+    public String getBookingQuery() {
+        return bookingQuery;
     }
 
     public String getCustomerQuery() {

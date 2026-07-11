@@ -19,9 +19,9 @@ import java.util.Locale;
 
 public class BookingHistoryController {
     @FXML private VBox historyRoot;
+    @FXML private TextField historyBookingField;
     @FXML private TextField historyCustomerField;
     @FXML private TextField historyVehicleField;
-    @FXML private TextField historyStatusField;
     @FXML private TableView<Booking> historyBookingsTable;
     @FXML private TableColumn<Booking, Number> historyCustomerIdColumn;
     @FXML private TableColumn<Booking, Number> historyBookingIdColumn;
@@ -56,19 +56,20 @@ public class BookingHistoryController {
 
     @FXML
     private void handleApplyFilters() {
+        String bookingQuery = normalize(historyBookingField.getText());
         String customerQuery = normalize(historyCustomerField.getText());
         String vehicleQuery = normalize(historyVehicleField.getText());
-        loadArchivedBookingsFromDatabase(customerQuery, vehicleQuery, "");
+        loadArchivedBookingsFromDatabase(bookingQuery, customerQuery, vehicleQuery, "");
     }
 
     private void loadBookingsFromDatabase() {
-        loadArchivedBookingsFromDatabase("", "", "");
+        loadArchivedBookingsFromDatabase("", "", "", "");
     }
 
-    private void loadArchivedBookingsFromDatabase(String customerQuery, String vehicleQuery, String dateQuery) {
+    private void loadArchivedBookingsFromDatabase(String bookingQuery, String customerQuery, String vehicleQuery, String dateQuery) {
         try {
             SearchBookingsResponse response = client.searchBookings(
-                    new SearchBookingsRequest(customerQuery, vehicleQuery, dateQuery, true));
+                    new SearchBookingsRequest(bookingQuery, customerQuery, vehicleQuery, dateQuery, true));
             if (response.isSuccess()) {
                 bookings.setAll(response.getBookings());
                 historyBookingsTable.setItems(bookings);
