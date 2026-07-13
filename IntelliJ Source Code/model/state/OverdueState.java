@@ -2,7 +2,7 @@ package model.state;
 
 import model.Booking;
 
-public class OverdueState implements BookingState {
+public class    OverdueState implements BookingState {
     @Override public String getStatusName() { return "OVERDUE"; }
 
     @Override

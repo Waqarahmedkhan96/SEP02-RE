@@ -71,11 +71,14 @@ public class CompleteBookingController {
 
         try {
             CompleteBookingResponse response = client.completeBooking(new CompleteBookingRequest(selectedBooking.getBookingId()));
-            completeStatusLabel.setText(response.getMessage());
+            String completionMessage = response.getMessage();
+
             if (response.isSuccess()) {
                 loadBookingsFromDatabase();
                 handleSearchBookings();
             }
+
+            completeStatusLabel.setText(completionMessage); // set last, so it isn't overwritten
         } catch (Exception e) {
             completeStatusLabel.setText("Connection error: " + e.getMessage());
         }
