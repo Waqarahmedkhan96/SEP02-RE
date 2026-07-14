@@ -1,6 +1,7 @@
 package view;
 
 import client.Client;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,6 +25,7 @@ public class CompleteBookingController {
     @FXML private TableColumn<Booking, Number> completeBookingIdColumn;
     @FXML private TableColumn<Booking, String> completeStartDateColumn;
     @FXML private TableColumn<Booking, String> completeEndDateColumn;
+    @FXML private TableColumn<Booking, String> completeActualReturnColumn;
     @FXML private TableColumn<Booking, String> completeStatusColumn;
     @FXML private TableColumn<Booking, Number> completeVehicleIdColumn;
     @FXML private Label completeStatusLabel;
@@ -35,6 +37,13 @@ public class CompleteBookingController {
     public void initialize() {
         BookingTableBinder.wireBookingTable(completeBookingsTable, completeBookingIdColumn, completeStartDateColumn,
                 completeEndDateColumn, completeStatusColumn, completeVehicleIdColumn);
+
+        completeActualReturnColumn.setCellValueFactory(data -> {
+            var actualReturnDate = data.getValue().getActualReturnDate();
+            return new javafx.beans.property.SimpleStringProperty(
+                    actualReturnDate == null ? "—" : actualReturnDate.toString());
+        });
+
         completeBookingsTable.setItems(bookings);
         loadBookingsFromDatabase();
     }
@@ -88,7 +97,13 @@ public class CompleteBookingController {
         try {
             GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
             if (response.isSuccess()) {
-                bookings.setAll(response.getBookings());
+                List<Booking> completableBookings = response.getBookings().stream()
+                        .filter(booking -> {
+                            String status = booking.getBookingStatus();
+                            return !"COMPLETED".equalsIgnoreCase(status) && !"CANCELLED".equalsIgnoreCase(status);
+                        })
+                        .toList();
+                bookings.setAll(completableBookings);
                 completeBookingsTable.setItems(bookings);
                 completeStatusLabel.setText("Loaded " + bookings.size() + " booking(s) from database");
             } else {

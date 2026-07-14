@@ -26,6 +26,7 @@
             <TableColumn fx:id="completeBookingIdColumn" text="Booking ID" prefWidth="120"/>
             <TableColumn fx:id="completeStartDateColumn" text="Start" prefWidth="180"/>
             <TableColumn fx:id="completeEndDateColumn" text="End" prefWidth="180"/>
+            <TableColumn fx:id="completeActualReturnColumn" text="Actual Return" prefWidth="180"/>
             <TableColumn fx:id="completeStatusColumn" text="Status" prefWidth="140"/>
             <TableColumn fx:id="completeVehicleIdColumn" text="Vehicle ID" prefWidth="120"/>
         </columns>
