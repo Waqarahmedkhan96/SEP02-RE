@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="customerRoot" spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="view.CustomerViewController"
+<VBox fx:id="updateRoot" spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="view.UpdateCustomerController"
       style="-fx-padding: 20;">
     <Button text="Back" onAction="#showCustomerMenu"/>
+    <ComboBox fx:id="customerComboBox" promptText="Select customer to update" visibleRowCount="6"/>
     <TextField fx:id="nameField" promptText="Name"/>
     <TextField fx:id="phoneField" promptText="Phone"/>
     <TextField fx:id="emailField" promptText="Email"/>
@@ -21,6 +23,6 @@
         <CheckBox fx:id="catC" text="C"/>
         <CheckBox fx:id="catD" text="D"/>
     </HBox>
-    <Button text="Create Customer" onAction="#handleSubmit"/>
+    <Button text="Update Customer" onAction="#handleUpdateCustomer"/>
     <Label fx:id="statusLabel"/>
 </VBox>

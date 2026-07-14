@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="customerManagementRoot" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="view.CustomerManagementController">
+    <VBox fx:id="menuPage">
+        <fx:include source="CustomerMenuView.fxml"/>
+    </VBox>
+    <VBox fx:id="createPage" visible="false" managed="false">
+        <fx:include source="CustomerView.fxml"/>
+    </VBox>
+    <VBox fx:id="updatePage" visible="false" managed="false">
+        <fx:include fx:id="updateCustomer" source="UpdateCustomerView.fxml"/>
+    </VBox>
+</StackPane>

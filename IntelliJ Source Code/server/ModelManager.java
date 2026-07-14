@@ -47,6 +47,8 @@ import shared.SearchBookingsRequest;
 import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.UpdateCustomerRequest;
+import shared.UpdateCustomerResponse;
 import shared.UpdateVehicleRequest;
 import shared.UpdateVehicleResponse;
 
@@ -143,6 +145,41 @@ public class ModelManager {
         } catch (Exception e) {
             e.printStackTrace();
             return new GetCustomersResponse(false, "Database error: " + e.getMessage(), Collections.emptyList());
+        }
+    }
+
+    public UpdateCustomerResponse updateCustomer(UpdateCustomerRequest req) {
+        Customer customer = req.getCustomer();
+        if (customer == null) {
+            return new UpdateCustomerResponse(false, "Customer information is required");
+        }
+        if (customer.getCustomerId() <= 0) {
+            return new UpdateCustomerResponse(false, "Select a customer to update");
+        }
+
+        normalizeCustomer(customer);
+
+        if (isBlank(customer.getName())) {
+            return new UpdateCustomerResponse(false, "Name is required");
+        }
+        if (isBlank(customer.getLicenseNo())) {
+            return new UpdateCustomerResponse(false, "License number is required");
+        }
+
+        DrivingLicense license = new DrivingLicense(customer.getLicenseNo(),
+                customer.isCategoryA(), customer.isCategoryB(), customer.isCategoryC(), customer.isCategoryD());
+
+        try {
+            CustomerDAO dao = DAOFactory.getCustomerDAO();
+            boolean updated = dao.update(customer, license);
+            if (!updated) {
+                return new UpdateCustomerResponse(false, "Customer cannot be found");
+            }
+
+            return new UpdateCustomerResponse(true, "Customer updated");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new UpdateCustomerResponse(false, "Database error: " + e.getMessage());
         }
     }
 
@@ -395,6 +432,15 @@ public class ModelManager {
 
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
+    }
+
+    private void normalizeCustomer(Customer customer) {
+        customer.setName(trimToNull(customer.getName()));
+        customer.setPhoneNo(trimToNull(customer.getPhoneNo()));
+        customer.setEmail(trimToNull(customer.getEmail()));
+        customer.setCpr(trimToNull(customer.getCpr()));
+        customer.setPassportNo(trimToNull(customer.getPassportNo()));
+        customer.setLicenseNo(trimToNull(customer.getLicenseNo()));
     }
 
     private String validateVehicle(Vehicle vehicle, boolean requireId) {

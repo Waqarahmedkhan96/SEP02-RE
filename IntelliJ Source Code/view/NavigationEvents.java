@@ -10,6 +10,15 @@ public final class NavigationEvents {
     public static final EventType<Event> SHOW_VIEW_VEHICLE =
             new EventType<>(Event.ANY, "SHOW_VIEW_VEHICLE");
 
+    public static final EventType<Event> SHOW_CUSTOMER_MENU =
+            new EventType<>(Event.ANY, "SHOW_CUSTOMER_MENU");
+
+    public static final EventType<Event> SHOW_CREATE_CUSTOMER =
+            new EventType<>(Event.ANY, "SHOW_CREATE_CUSTOMER");
+
+    public static final EventType<Event> SHOW_UPDATE_CUSTOMER =
+            new EventType<>(Event.ANY, "SHOW_UPDATE_CUSTOMER");
+
     public static final EventType<Event> SHOW_BOOKING_MENU =
             new EventType<>(Event.ANY, "SHOW_BOOKING_MENU");
 

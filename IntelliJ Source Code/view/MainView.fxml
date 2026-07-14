@@ -81,7 +81,7 @@
             </VBox>
 
             <VBox fx:id="customerPage" visible="false" managed="false">
-                <fx:include source="CustomerView.fxml"/>
+                <fx:include source="CustomerManagementView.fxml"/>
             </VBox>
             <VBox fx:id="vehiclePage" visible="false" managed="false">
                 <fx:include source="VehicleManagement.fxml"/>

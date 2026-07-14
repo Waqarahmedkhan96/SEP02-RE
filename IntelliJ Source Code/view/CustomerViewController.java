@@ -32,11 +32,26 @@ public class CustomerViewController {
 
     @FXML
     private void handleSubmit() {
-        viewModel.submit();
+        if (viewModel.submit()) {
+            clearForm();
+        }
     }
 
     @FXML
-    private void handleBackToDashboard() {
-        customerRoot.fireEvent(new javafx.event.Event(NavigationEvents.SHOW_DASHBOARD));
+    private void showCustomerMenu() {
+        customerRoot.fireEvent(new javafx.event.Event(NavigationEvents.SHOW_CUSTOMER_MENU));
+    }
+
+    private void clearForm() {
+        nameField.clear();
+        phoneField.clear();
+        emailField.clear();
+        cprField.clear();
+        passportField.clear();
+        licenseField.clear();
+        catA.setSelected(false);
+        catB.setSelected(false);
+        catC.setSelected(false);
+        catD.setSelected(false);
     }
 }

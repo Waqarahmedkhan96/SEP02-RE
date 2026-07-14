@@ -12,6 +12,10 @@ public class Customer implements Serializable {
     private String cpr;
     private String passportNo;
     private String licenseNo; // FK -> DrivingLicense
+    private boolean categoryA;
+    private boolean categoryB;
+    private boolean categoryC;
+    private boolean categoryD;
 
     public Customer() {}
 
@@ -45,4 +49,16 @@ public class Customer implements Serializable {
 
     public String getLicenseNo() { return licenseNo; }
     public void setLicenseNo(String licenseNo) { this.licenseNo = licenseNo; }
+
+    public boolean isCategoryA() { return categoryA; }
+    public void setCategoryA(boolean categoryA) { this.categoryA = categoryA; }
+
+    public boolean isCategoryB() { return categoryB; }
+    public void setCategoryB(boolean categoryB) { this.categoryB = categoryB; }
+
+    public boolean isCategoryC() { return categoryC; }
+    public void setCategoryC(boolean categoryC) { this.categoryC = categoryC; }
+
+    public boolean isCategoryD() { return categoryD; }
+    public void setCategoryD(boolean categoryD) { this.categoryD = categoryD; }
 }

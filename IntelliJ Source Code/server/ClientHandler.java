@@ -35,6 +35,8 @@ import shared.SearchBookingsRequest;
 import shared.SearchBookingsResponse;
 import shared.UpdateBookingRequest;
 import shared.UpdateBookingResponse;
+import shared.UpdateCustomerRequest;
+import shared.UpdateCustomerResponse;
 import shared.UpdateVehicleRequest;
 import shared.UpdateVehicleResponse;
 
@@ -69,6 +71,9 @@ public class ClientHandler implements Runnable {
                 out.writeObject(response);
             } else if (requestObj instanceof GetCustomersRequest req) {
                 GetCustomersResponse response = modelManager.getCustomers(req);
+                out.writeObject(response);
+            } else if (requestObj instanceof UpdateCustomerRequest req) {
+                UpdateCustomerResponse response = modelManager.updateCustomer(req);
                 out.writeObject(response);
             } else if (requestObj instanceof SearchBookingsRequest req) {
                 SearchBookingsResponse response = modelManager.searchBookings(req);
