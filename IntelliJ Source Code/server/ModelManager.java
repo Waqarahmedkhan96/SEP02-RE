@@ -401,6 +401,10 @@ public class ModelManager {
 
         try {
             VehicleDAO dao = DAOFactory.getVehicleDAO();
+            if (dao.hasBookings(req.getVehicleId())) {
+                return new RemoveVehicleResponse(false, "Vehicle cannot be removed because it has bookings");
+            }
+
             dao.remove(req.getVehicleId());
             return new RemoveVehicleResponse(true, "Vehicle removed");
         } catch (Exception e) {

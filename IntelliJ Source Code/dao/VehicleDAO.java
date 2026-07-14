@@ -15,6 +15,8 @@ void update(Vehicle vehicle) throws SQLException;
 
 void remove(int vehicleId) throws SQLException;
 
+boolean hasBookings(int vehicleId) throws SQLException;
+
 List<Vehicle> filterVehicles(String color, String vehicleType, String status, double maxPrice);
 
 Vehicle getVehicleById(int id);

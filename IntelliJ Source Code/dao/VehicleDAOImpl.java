@@ -100,25 +100,27 @@ public class VehicleDAOImpl implements VehicleDAO {
 
     @Override
     public void remove(int vehicleId) throws SQLException {
-        String bookingSql = "SELECT 1 FROM booking WHERE vehicle_id = ? LIMIT 1";
         String deleteSql = "DELETE FROM vehicle WHERE vehicle_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            try (PreparedStatement bookingStmt = conn.prepareStatement(bookingSql)) {
-                bookingStmt.setInt(1, vehicleId);
-                ResultSet rs = bookingStmt.executeQuery();
-                if (rs.next()) {
-                    throw new SQLException("Vehicle cannot be removed because it has bookings");
-                }
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+            deleteStmt.setInt(1, vehicleId);
+            int removedRows = deleteStmt.executeUpdate();
+            if (removedRows == 0) {
+                throw new SQLException("Vehicle cannot be found");
             }
+        }
+    }
 
-            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
-                deleteStmt.setInt(1, vehicleId);
-                int removedRows = deleteStmt.executeUpdate();
-                if (removedRows == 0) {
-                    throw new SQLException("Vehicle cannot be found");
-                }
-            }
+    @Override
+    public boolean hasBookings(int vehicleId) throws SQLException {
+        String sql = "SELECT 1 FROM booking WHERE vehicle_id = ? LIMIT 1";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
         }
     }
 
