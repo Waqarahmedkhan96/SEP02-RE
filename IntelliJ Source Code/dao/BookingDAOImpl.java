@@ -255,9 +255,11 @@ public class BookingDAOImpl implements BookingDAO {
                 "(CASE WHEN b.actual_return_date IS NULL THEN 0 " +
                 "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.start_date)) / 3600.0 END) AS actual_hours, " +
                 "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
-                "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0 END) AS late_hours, " +
+                "ELSE CEIL(EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0) END) AS late_hours, " +
                 "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_hours, " +
-                "(v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_price " +
+                "((v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) + " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
+                "ELSE CEIL(EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0) * v.late_fee END)) AS total_price " +
                 "FROM booking b " +
                 "JOIN customer c ON c.customer_id = b.customer_id " +
                 "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
