@@ -101,6 +101,10 @@ public class ModelManager {
 
         try {
             BookingDAO dao = DAOFactory.getBookingDAO();
+            if (hasBookingConflict(booking, dao.findByVehicleId(booking.getVehicleId()))) {
+                return new CreateBookingResponse(false, "Vehicle is not available for the selected period", -1);
+            }
+
             int newId = dao.create(booking);
             return new CreateBookingResponse(true, "Booking created", newId);
         } catch (Exception e) {
@@ -239,6 +243,11 @@ public class ModelManager {
                     existing.getCustomerId(), req.getVehicleId(), req.getEmployeeId());
             updatedBooking.setBookingId(existing.getBookingId());
             updatedBooking.setActualReturnDate(existing.getActualReturnDate());
+
+            if (hasBookingConflict(updatedBooking,
+                    dao.findByVehicleIdExcludingBooking(updatedBooking.getVehicleId(), updatedBooking.getBookingId()))) {
+                return new UpdateBookingResponse(false, "Vehicle is not available for the selected period");
+            }
 
             dao.updateActiveBooking(updatedBooking);
             return new UpdateBookingResponse(true, "Booking updated");
@@ -432,6 +441,35 @@ public class ModelManager {
 
         double rate = dao.getVehicleLateFeeRate(booking.getVehicleId());
         return hoursLate * rate;
+    }
+
+    private boolean hasBookingConflict(Booking requestedBooking, List<Booking> existingBookings) {
+        return existingBookings.stream()
+                .anyMatch(existingBooking -> conflictsWith(requestedBooking, existingBooking));
+    }
+
+    private boolean conflictsWith(Booking requestedBooking, Booking existingBooking) {
+        return requestedBooking != null
+                && existingBooking != null
+                && requestedBooking.getVehicleId() == existingBooking.getVehicleId()
+                && blocksVehicleAvailability(existingBooking)
+                && overlaps(requestedBooking, existingBooking);
+    }
+
+    private boolean blocksVehicleAvailability(Booking booking) {
+        String status = booking.getBookingStatus();
+        return status == null
+                || (!"CANCELLED".equalsIgnoreCase(status)
+                && !"COMPLETED".equalsIgnoreCase(status));
+    }
+
+    private boolean overlaps(Booking requestedBooking, Booking existingBooking) {
+        return requestedBooking.getStartDate() != null
+                && requestedBooking.getEndDate() != null
+                && existingBooking.getStartDate() != null
+                && existingBooking.getEndDate() != null
+                && requestedBooking.getStartDate().isBefore(existingBooking.getEndDate())
+                && requestedBooking.getEndDate().isAfter(existingBooking.getStartDate());
     }
 
     private void normalizeCustomer(Customer customer) {

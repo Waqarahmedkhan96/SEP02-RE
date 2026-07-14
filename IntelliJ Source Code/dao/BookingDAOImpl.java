@@ -142,6 +142,45 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
+    public List<Booking> findByVehicleId(int vehicleId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
+    public List<Booking> findByVehicleIdExcludingBooking(int vehicleId, int excludedBookingId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ? AND booking_id <> ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            stmt.setInt(2, excludedBookingId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
     public List<Booking> searchBookings(String query, boolean cancellableOnly) throws SQLException {
         String normalizedQuery = query == null ? "" : query.trim();
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
@@ -540,19 +579,7 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String activeBookingsSql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
-                "customer_id, vehicle_id, employee_id " +
-                "FROM booking WHERE vehicle_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(activeBookingsSql)) {
-            stmt.setInt(1, booking.getVehicleId());
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                if (booking.conflictsWith(mapBooking(rs))) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        return true;
     }
 
     private Booking findByIdForUpdate(Connection conn, int bookingId) throws SQLException {
@@ -582,20 +609,7 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String activeBookingsSql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
-                "customer_id, vehicle_id, employee_id " +
-                "FROM booking WHERE vehicle_id = ? AND booking_id <> ?";
-        try (PreparedStatement stmt = conn.prepareStatement(activeBookingsSql)) {
-            stmt.setInt(1, booking.getVehicleId());
-            stmt.setInt(2, excludedBookingId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                if (booking.conflictsWith(mapBooking(rs))) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        return true;
     }
 
     private Integer tryParseInt(String value) {
