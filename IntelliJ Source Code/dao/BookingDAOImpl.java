@@ -252,7 +252,7 @@ public class BookingDAOImpl implements BookingDAO {
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
                 "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id, v.price_hour, " +
                 "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS booked_hours, " +
-                "(CASE WHEN b.actual_return_date IS NULL THEN 0 " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date < b.start_date THEN 0 " +
                 "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.start_date)) / 3600.0 END) AS actual_hours, " +
                 "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
                 "ELSE CEIL(EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0) END) AS late_hours, " +
