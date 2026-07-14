@@ -212,6 +212,11 @@ public class BookingDAOImpl implements BookingDAO {
 
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
                 "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id, v.price_hour, " +
+                "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS booked_hours, " +
+                "(CASE WHEN b.actual_return_date IS NULL THEN 0 " +
+                "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.start_date)) / 3600.0 END) AS actual_hours, " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
+                "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0 END) AS late_hours, " +
                 "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_hours, " +
                 "(v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_price " +
                 "FROM booking b " +
@@ -618,6 +623,15 @@ public class BookingDAOImpl implements BookingDAO {
         booking.setEmployeeId(rs.getInt("employee_id"));
         if (hasColumn(rs, "price_hour")) {
             booking.setPriceHour(rs.getDouble("price_hour"));
+        }
+        if (hasColumn(rs, "booked_hours")) {
+            booking.setBookedHours(rs.getDouble("booked_hours"));
+        }
+        if (hasColumn(rs, "actual_hours")) {
+            booking.setActualHours(rs.getDouble("actual_hours"));
+        }
+        if (hasColumn(rs, "late_hours")) {
+            booking.setLateHours(rs.getDouble("late_hours"));
         }
         if (hasColumn(rs, "total_hours")) {
             booking.setTotalHours(rs.getDouble("total_hours"));

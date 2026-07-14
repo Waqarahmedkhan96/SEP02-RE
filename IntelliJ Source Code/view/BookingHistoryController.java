@@ -28,8 +28,11 @@ public class BookingHistoryController {
     @FXML private TableColumn<Booking, Number> historyVehicleIdColumn;
     @FXML private TableColumn<Booking, String> historyStartDateColumn;
     @FXML private TableColumn<Booking, String> historyEndDateColumn;
+    @FXML private TableColumn<Booking, String> historyActualReturnDateColumn;
     @FXML private TableColumn<Booking, String> historyPriceHourColumn;
-    @FXML private TableColumn<Booking, String> historyTotalHoursColumn;
+    @FXML private TableColumn<Booking, String> historyBookedHoursColumn;
+    @FXML private TableColumn<Booking, String> historyActualHoursColumn;
+    @FXML private TableColumn<Booking, String> historyLateHoursColumn;
     @FXML private TableColumn<Booking, String> historyTotalPriceColumn;
     @FXML private TableColumn<Booking, String> historyStatusColumn;
     @FXML private Label historyStatusLabel;
@@ -42,8 +45,11 @@ public class BookingHistoryController {
         BookingTableBinder.wireBookingTable(historyBookingsTable, historyBookingIdColumn, historyStartDateColumn,
                 historyEndDateColumn, historyStatusColumn, historyVehicleIdColumn);
         historyCustomerIdColumn.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getCustomerId()));
+        historyActualReturnDateColumn.setCellValueFactory(data -> new SimpleStringProperty(formatDate(data.getValue().getActualReturnDate())));
         historyPriceHourColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getPriceHour())));
-        historyTotalHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getTotalHours())));
+        historyBookedHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getBookedHours())));
+        historyActualHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getActualHours())));
+        historyLateHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getLateHours())));
         historyTotalPriceColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getTotalPrice())));
         historyBookingsTable.setItems(bookings);
         loadBookingsFromDatabase();
@@ -92,5 +98,9 @@ public class BookingHistoryController {
 
     private String formatNumber(double value) {
         return String.format(Locale.ROOT, "%.2f", value);
+    }
+
+    private String formatDate(Object value) {
+        return value == null ? "N/A" : value.toString();
     }
 }
