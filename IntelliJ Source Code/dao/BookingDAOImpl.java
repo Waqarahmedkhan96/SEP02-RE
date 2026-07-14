@@ -535,18 +535,18 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String overlapSql = "SELECT 1 FROM booking " +
-                "WHERE vehicle_id = ? " +
-                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
-                "AND start_date < ? " +
-                "AND end_date > ? " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(overlapSql)) {
+        String activeBookingsSql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(activeBookingsSql)) {
             stmt.setInt(1, booking.getVehicleId());
-            stmt.setTimestamp(2, Timestamp.valueOf(booking.getEndDate()));
-            stmt.setTimestamp(3, Timestamp.valueOf(booking.getStartDate()));
             ResultSet rs = stmt.executeQuery();
-            return !rs.next();
+            while (rs.next()) {
+                if (booking.conflictsWith(mapBooking(rs))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -577,20 +577,19 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String overlapSql = "SELECT 1 FROM booking " +
-                "WHERE vehicle_id = ? " +
-                "AND booking_id <> ? " +
-                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
-                "AND start_date < ? " +
-                "AND end_date > ? " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(overlapSql)) {
+        String activeBookingsSql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ? AND booking_id <> ?";
+        try (PreparedStatement stmt = conn.prepareStatement(activeBookingsSql)) {
             stmt.setInt(1, booking.getVehicleId());
             stmt.setInt(2, excludedBookingId);
-            stmt.setTimestamp(3, Timestamp.valueOf(booking.getEndDate()));
-            stmt.setTimestamp(4, Timestamp.valueOf(booking.getStartDate()));
             ResultSet rs = stmt.executeQuery();
-            return !rs.next();
+            while (rs.next()) {
+                if (booking.conflictsWith(mapBooking(rs))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

@@ -62,4 +62,27 @@ public class Booking implements Serializable {
 
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+
+    public boolean blocksVehicleAvailability() {
+        return bookingStatus == null
+                || (!"CANCELLED".equalsIgnoreCase(bookingStatus)
+                && !"COMPLETED".equalsIgnoreCase(bookingStatus));
+    }
+
+    public boolean overlapsWith(Booking other) {
+        if (other == null || startDate == null || endDate == null
+                || other.getStartDate() == null || other.getEndDate() == null) {
+            return false;
+        }
+
+        return startDate.isBefore(other.getEndDate())
+                && endDate.isAfter(other.getStartDate());
+    }
+
+    public boolean conflictsWith(Booking other) {
+        return other != null
+                && vehicleId == other.getVehicleId()
+                && other.blocksVehicleAvailability()
+                && overlapsWith(other);
+    }
 }
