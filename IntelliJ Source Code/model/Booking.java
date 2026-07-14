@@ -15,6 +15,9 @@ public class Booking implements Serializable {
     private int vehicleId;
     private int employeeId;
     private double priceHour;
+    private double bookedHours;
+    private double actualHours;
+    private double lateHours;
     private double totalHours;
     private double totalPrice;
 
@@ -56,6 +59,15 @@ public class Booking implements Serializable {
 
     public double getPriceHour() { return priceHour; }
     public void setPriceHour(double priceHour) { this.priceHour = priceHour; }
+
+    public double getBookedHours() { return bookedHours; }
+    public void setBookedHours(double bookedHours) { this.bookedHours = bookedHours; }
+
+    public double getActualHours() { return actualHours; }
+    public void setActualHours(double actualHours) { this.actualHours = actualHours; }
+
+    public double getLateHours() { return lateHours; }
+    public void setLateHours(double lateHours) { this.lateHours = lateHours; }
 
     public double getTotalHours() { return totalHours; }
     public void setTotalHours(double totalHours) { this.totalHours = totalHours; }
