@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -50,6 +51,22 @@ public class BookingHistoryController {
         historyBookedHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getBookedHours())));
         historyActualHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getActualHours())));
         historyLateHoursColumn.setCellValueFactory(data -> new SimpleStringProperty(formatNumber(data.getValue().getLateHours())));
+        historyLateHoursColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+
+                setText(value);
+                setStyle(parseNumber(value) > 0
+                        ? "-fx-text-fill: #c8202f; -fx-font-weight: bold;"
+                        : "-fx-text-fill: #20964b; -fx-font-weight: bold;");
+            }
+        });
         historyTotalPriceColumn.setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getTotalPrice())));
         historyBookingsTable.setItems(bookings);
         loadBookingsFromDatabase();
@@ -102,5 +119,13 @@ public class BookingHistoryController {
 
     private String formatDate(Object value) {
         return value == null ? "N/A" : value.toString();
+    }
+
+    private double parseNumber(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
