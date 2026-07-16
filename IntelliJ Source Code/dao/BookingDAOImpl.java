@@ -56,14 +56,16 @@ public class BookingDAOImpl implements BookingDAO {
                 generatedId = rs.getInt("booking_id");
             }
 
-            Vehicle bookedVehicle = new Vehicle();
-            bookedVehicle.setVehicleId(booking.getVehicleId());
-            bookedVehicle.setCurrentState("available");
-            bookedVehicle.markRented();
-            try (PreparedStatement stmt = conn.prepareStatement(rentVehicleSql)) {
-                stmt.setString(1, bookedVehicle.getCurrentState());
-                stmt.setInt(2, bookedVehicle.getVehicleId());
-                stmt.executeUpdate();
+            if ("ACTIVE".equalsIgnoreCase(booking.getBookingStatus())) {
+                Vehicle bookedVehicle = new Vehicle();
+                bookedVehicle.setVehicleId(booking.getVehicleId());
+                bookedVehicle.setCurrentState("available");
+                bookedVehicle.markRented();
+                try (PreparedStatement stmt = conn.prepareStatement(rentVehicleSql)) {
+                    stmt.setString(1, bookedVehicle.getCurrentState());
+                    stmt.setInt(2, bookedVehicle.getVehicleId());
+                    stmt.executeUpdate();
+                }
             }
 
             conn.commit();

@@ -96,7 +96,9 @@ public class ModelManager {
             return new CreateBookingResponse(false, "Start date must be before end date", -1);
         }
 
-        Booking booking = new Booking(req.getStartDate(), req.getEndDate(), "ACTIVE",
+        String initialStatus = req.getStartDate().isAfter(LocalDateTime.now()) ? "PENDING" : "ACTIVE";
+
+        Booking booking = new Booking(req.getStartDate(), req.getEndDate(), initialStatus,
                 req.getCustomerId(), req.getVehicleId(), req.getEmployeeId());
 
         try {
