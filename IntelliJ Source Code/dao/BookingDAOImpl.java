@@ -144,6 +144,45 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
+    public List<Booking> findByVehicleId(int vehicleId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
+    public List<Booking> findByVehicleIdExcludingBooking(int vehicleId, int excludedBookingId) throws SQLException {
+        String sql = "SELECT booking_id, start_date, end_date, actual_return_date, booking_status, " +
+                "customer_id, vehicle_id, employee_id " +
+                "FROM booking WHERE vehicle_id = ? AND booking_id <> ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            stmt.setInt(2, excludedBookingId);
+
+            List<Booking> bookings = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                bookings.add(mapBooking(rs));
+            }
+            return bookings;
+        }
+    }
+
+    @Override
     public List<Booking> searchBookings(String query, boolean cancellableOnly) throws SQLException {
         String normalizedQuery = query == null ? "" : query.trim();
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
@@ -214,8 +253,15 @@ public class BookingDAOImpl implements BookingDAO {
 
         StringBuilder sql = new StringBuilder("SELECT b.booking_id, b.start_date, b.end_date, b.actual_return_date, " +
                 "b.booking_status, b.customer_id, b.vehicle_id, b.employee_id, v.price_hour, " +
+                "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS booked_hours, " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date < b.start_date THEN 0 " +
+                "ELSE EXTRACT(EPOCH FROM (b.actual_return_date - b.start_date)) / 3600.0 END) AS actual_hours, " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
+                "ELSE CEIL(EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0) END) AS late_hours, " +
                 "(EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_hours, " +
-                "(v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) AS total_price " +
+                "((v.price_hour * EXTRACT(EPOCH FROM (b.end_date - b.start_date)) / 3600.0) + " +
+                "(CASE WHEN b.actual_return_date IS NULL OR b.actual_return_date <= b.end_date THEN 0 " +
+                "ELSE CEIL(EXTRACT(EPOCH FROM (b.actual_return_date - b.end_date)) / 3600.0) * v.late_fee END)) AS total_price " +
                 "FROM booking b " +
                 "JOIN customer c ON c.customer_id = b.customer_id " +
                 "JOIN vehicle v ON v.vehicle_id = b.vehicle_id " +
@@ -537,19 +583,7 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String overlapSql = "SELECT 1 FROM booking " +
-                "WHERE vehicle_id = ? " +
-                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
-                "AND start_date < ? " +
-                "AND end_date > ? " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(overlapSql)) {
-            stmt.setInt(1, booking.getVehicleId());
-            stmt.setTimestamp(2, Timestamp.valueOf(booking.getEndDate()));
-            stmt.setTimestamp(3, Timestamp.valueOf(booking.getStartDate()));
-            ResultSet rs = stmt.executeQuery();
-            return !rs.next();
-        }
+        return true;
     }
 
     private Booking findByIdForUpdate(Connection conn, int bookingId) throws SQLException {
@@ -579,21 +613,7 @@ public class BookingDAOImpl implements BookingDAO {
             }
         }
 
-        String overlapSql = "SELECT 1 FROM booking " +
-                "WHERE vehicle_id = ? " +
-                "AND booking_id <> ? " +
-                "AND UPPER(booking_status) NOT IN ('CANCELLED', 'COMPLETED') " +
-                "AND start_date < ? " +
-                "AND end_date > ? " +
-                "LIMIT 1";
-        try (PreparedStatement stmt = conn.prepareStatement(overlapSql)) {
-            stmt.setInt(1, booking.getVehicleId());
-            stmt.setInt(2, excludedBookingId);
-            stmt.setTimestamp(3, Timestamp.valueOf(booking.getEndDate()));
-            stmt.setTimestamp(4, Timestamp.valueOf(booking.getStartDate()));
-            ResultSet rs = stmt.executeQuery();
-            return !rs.next();
-        }
+        return true;
     }
 
     private Integer tryParseInt(String value) {
@@ -621,6 +641,15 @@ public class BookingDAOImpl implements BookingDAO {
         booking.setEmployeeId(rs.getInt("employee_id"));
         if (hasColumn(rs, "price_hour")) {
             booking.setPriceHour(rs.getDouble("price_hour"));
+        }
+        if (hasColumn(rs, "booked_hours")) {
+            booking.setBookedHours(rs.getDouble("booked_hours"));
+        }
+        if (hasColumn(rs, "actual_hours")) {
+            booking.setActualHours(rs.getDouble("actual_hours"));
+        }
+        if (hasColumn(rs, "late_hours")) {
+            booking.setLateHours(rs.getDouble("late_hours"));
         }
         if (hasColumn(rs, "total_hours")) {
             booking.setTotalHours(rs.getDouble("total_hours"));
