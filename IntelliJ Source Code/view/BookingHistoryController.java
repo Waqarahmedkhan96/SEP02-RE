@@ -85,7 +85,7 @@ public class BookingHistoryController {
         loadArchivedBookingsFromDatabase(bookingQuery, customerQuery, vehicleQuery, "");
     }
 
-    private void loadBookingsFromDatabase() {
+    void loadBookingsFromDatabase() {   // was: private void loadBookingsFromDatabase()
         loadArchivedBookingsFromDatabase("", "", "", "");
     }
 

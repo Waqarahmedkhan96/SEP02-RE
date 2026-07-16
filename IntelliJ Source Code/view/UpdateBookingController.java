@@ -134,4 +134,8 @@ public class UpdateBookingController {
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
+
+    void refresh() {
+        viewModel.searchActiveBookings("");
+    }
 }

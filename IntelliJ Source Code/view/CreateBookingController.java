@@ -265,4 +265,9 @@ public class CreateBookingController {
         String id = value.split("-", 2)[0].trim();
         return parseIntOrZero(id);
     }
+
+    void refresh() {
+        viewModel.loadCustomers();
+        loadAvailableVehiclesIfReady();
+    }
 }

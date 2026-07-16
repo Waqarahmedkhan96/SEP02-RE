@@ -93,10 +93,6 @@ public class CancelBookingController {
                 : successMessage);
     }
 
-    private void loadBookingsFromDatabase() {
-        loadBookingsFromDatabase(true);
-    }
-
     private void loadBookingsFromDatabase(boolean updateStatus) {
         try {
             GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
@@ -141,5 +137,9 @@ public class CancelBookingController {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    void loadBookingsFromDatabase() {   // was: private void loadBookingsFromDatabase()
+        loadBookingsFromDatabase(true);
     }
 }

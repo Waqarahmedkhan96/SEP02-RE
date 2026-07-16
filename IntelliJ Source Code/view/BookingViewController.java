@@ -14,6 +14,12 @@ public class BookingViewController {
     @FXML private VBox completePage;
     @FXML private VBox historyPage;
 
+    @FXML private CreateBookingController createBookingController;
+    @FXML private UpdateBookingController updateBookingController;
+    @FXML private CancelBookingController cancelBookingController;
+    @FXML private CompleteBookingController completeBookingController;
+    @FXML private BookingHistoryController bookingHistoryController;
+
     @FXML
     public void initialize() {
         bookingRoot.addEventHandler(NavigationEvents.SHOW_BOOKING_MENU, event -> {
@@ -22,22 +28,27 @@ public class BookingViewController {
         });
         bookingRoot.addEventHandler(NavigationEvents.SHOW_CREATE_BOOKING, event -> {
             showPage(createPage);
+            createBookingController.refresh();
             event.consume();
         });
         bookingRoot.addEventHandler(NavigationEvents.SHOW_UPDATE_BOOKING, event -> {
             showPage(updatePage);
+            updateBookingController.refresh();
             event.consume();
         });
         bookingRoot.addEventHandler(NavigationEvents.SHOW_CANCEL_BOOKING, event -> {
             showPage(cancelPage);
+            cancelBookingController.loadBookingsFromDatabase();
             event.consume();
         });
         bookingRoot.addEventHandler(NavigationEvents.SHOW_COMPLETE_BOOKING, event -> {
             showPage(completePage);
+            completeBookingController.loadBookingsFromDatabase();
             event.consume();
         });
         bookingRoot.addEventHandler(NavigationEvents.SHOW_BOOKING_HISTORY, event -> {
             showPage(historyPage);
+            bookingHistoryController.loadBookingsFromDatabase();
             event.consume();
         });
 

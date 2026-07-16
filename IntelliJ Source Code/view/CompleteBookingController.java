@@ -93,7 +93,7 @@ public class CompleteBookingController {
         }
     }
 
-    private void loadBookingsFromDatabase() {
+    void loadBookingsFromDatabase() {
         try {
             GetBookingsResponse response = client.getBookings(new GetBookingsRequest());
             if (response.isSuccess()) {

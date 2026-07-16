@@ -8,18 +8,18 @@
         <fx:include source="BookingMenuView.fxml"/>
     </VBox>
     <VBox fx:id="createPage" visible="false" managed="false">
-        <fx:include source="CreateBookingView.fxml"/>
+        <fx:include fx:id="createBooking" source="CreateBookingView.fxml"/>
     </VBox>
     <VBox fx:id="updatePage" visible="false" managed="false">
-        <fx:include source="UpdateBookingView.fxml"/>
+        <fx:include fx:id="updateBooking" source="UpdateBookingView.fxml"/>
     </VBox>
     <VBox fx:id="cancelPage" visible="false" managed="false">
-        <fx:include source="CancelBookingView.fxml"/>
+        <fx:include fx:id="cancelBooking" source="CancelBookingView.fxml"/>
     </VBox>
     <VBox fx:id="completePage" visible="false" managed="false">
-        <fx:include source="CompleteBookingView.fxml"/>
+        <fx:include fx:id="completeBooking" source="CompleteBookingView.fxml"/>
     </VBox>
     <VBox fx:id="historyPage" visible="false" managed="false">
-        <fx:include source="BookingHistoryView.fxml"/>
+        <fx:include fx:id="bookingHistory" source="BookingHistoryView.fxml"/>
     </VBox>
 </StackPane>

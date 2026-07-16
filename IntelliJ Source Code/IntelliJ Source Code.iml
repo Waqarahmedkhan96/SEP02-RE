@@ -11,7 +11,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.m2/repository/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -20,15 +20,16 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.m2/repository/org/openjfx/javafx-base/21.0.2/javafx-base-21.0.2-win.jar!/" />
-          <root url="jar://$USER_HOME$/.m2/repository/org/openjfx/javafx-controls/21.0.2/javafx-controls-21.0.2-win.jar!/" />
-          <root url="jar://$USER_HOME$/.m2/repository/org/openjfx/javafx-fxml/21.0.2/javafx-fxml-21.0.2-win.jar!/" />
-          <root url="jar://$USER_HOME$/.m2/repository/org/openjfx/javafx-graphics/21.0.2/javafx-graphics-21.0.2-win.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-base/21.0.2/javafx-base-21.0.2-win.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/21.0.2/javafx-controls-21.0.2-win.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/21.0.2/javafx-fxml-21.0.2-win.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/21.0.2/javafx-graphics-21.0.2-win.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="library" name="JUnit5" level="project" />
+    <orderEntry type="library" name="junit.jupiter" level="project" />
   </component>
 </module>
